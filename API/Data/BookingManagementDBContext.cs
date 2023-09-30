@@ -27,7 +27,49 @@ namespace API.Data
                 e.Email,
                 e.PhoneNumber
             }).IsUnique();
+
+            //relasi university dan education
+            modelBuilder.Entity<University>()
+                    .HasMany(e => e.Education)
+                    .WithOne(u => u.University)
+                    .HasForeignKey(e => e.UniversityGuid);
+
+            //relasi education dan employee
+            modelBuilder.Entity<Education>()
+                    .HasOne(e => e.Employee)
+                    .WithOne(e => e.Education)
+                    .HasForeignKey<Education>(e => e.Guid);
+            //relasi employee dan account
+            modelBuilder.Entity<Employee>()
+                .HasOne(a => a.Account)
+                .WithOne(e => e.Employee)
+                .HasForeignKey<Account>(a => a.Guid);
+            //relasi account dan account role
+            modelBuilder.Entity<Account>()
+                .HasMany(ar => ar.AccountRole)
+                .WithOne(a => a.Account)
+                .HasForeignKey(ar => ar.AccountGuid);
+            //accountrole dan role
+            modelBuilder.Entity<AccountRole>()
+                .HasOne(r => r.Role)
+                .WithMany(ar => ar.AccountRole)
+                .HasForeignKey(ar => ar.RoleGuid);
+            //employee dan booking 
+            modelBuilder.Entity<Employee>()
+                .HasMany(b => b.Booking)
+                .WithOne(e => e.Employee)
+                .HasForeignKey(b => b.EmployeeGuid);
+            //booking dan room
+            modelBuilder.Entity<Booking>()
+                .HasOne(r => r.Room)
+                .WithMany(b => b.Booking)
+                .HasForeignKey(b => b.RoomGuid);
+
+        
         }
+
+        //ondelete 
+        
 
 
     }

@@ -16,5 +16,7 @@ public class Education : BaseEntity
     
     [Column("university_guid")]
     public Guid UniversityGuid { get; set; }
+    public University? University {  get; set; }
 
+    public Employee? Employee { get; set; }
 }

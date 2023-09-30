@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(BookingManagementDBContext))]
-    [Migration("20230928065821_AddTablestoDb")]
-    partial class AddTablestoDb
+    [Migration("20230929034615_AddCardinalityandRelationship")]
+    partial class AddCardinalityandRelationship
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,7 +27,6 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.Account", b =>
                 {
                     b.Property<Guid>("Guid")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("guid");
 
@@ -86,6 +85,10 @@ namespace API.Migrations
 
                     b.HasKey("Guid");
 
+                    b.HasIndex("AccountGuid");
+
+                    b.HasIndex("RoleGuid");
+
                     b.ToTable("tb_m_account_roles");
                 });
 
@@ -100,11 +103,11 @@ namespace API.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("created_date");
 
-                    b.Property<Guid>("Employee")
+                    b.Property<Guid>("EmployeeGuid")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("employee_guid");
 
-                    b.Property<DateTime>("EnddDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("end_date");
 
@@ -117,11 +120,11 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("remarks");
 
-                    b.Property<Guid>("Room")
+                    b.Property<Guid>("RoomGuid")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("room_guid");
 
-                    b.Property<DateTime>("StartdDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("start_date");
 
@@ -131,13 +134,16 @@ namespace API.Migrations
 
                     b.HasKey("Guid");
 
+                    b.HasIndex("EmployeeGuid");
+
+                    b.HasIndex("RoomGuid");
+
                     b.ToTable("tb_tr_bookings");
                 });
 
             modelBuilder.Entity("API.Models.Education", b =>
                 {
                     b.Property<Guid>("Guid")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("guid");
 
@@ -168,6 +174,8 @@ namespace API.Migrations
                         .HasColumnName("university_guid");
 
                     b.HasKey("Guid");
+
+                    b.HasIndex("UniversityGuid");
 
                     b.ToTable("tb_m_educations");
                 });
@@ -317,6 +325,103 @@ namespace API.Migrations
                     b.HasKey("Guid");
 
                     b.ToTable("tb_m_universities");
+                });
+
+            modelBuilder.Entity("API.Models.Account", b =>
+                {
+                    b.HasOne("API.Models.Employee", "Employee")
+                        .WithOne("Account")
+                        .HasForeignKey("API.Models.Account", "Guid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("API.Models.AccountRole", b =>
+                {
+                    b.HasOne("API.Models.Account", "Account")
+                        .WithMany("AccountRole")
+                        .HasForeignKey("AccountGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Role", "Role")
+                        .WithMany("AccountRole")
+                        .HasForeignKey("RoleGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("API.Models.Booking", b =>
+                {
+                    b.HasOne("API.Models.Employee", "Employee")
+                        .WithMany("Booking")
+                        .HasForeignKey("EmployeeGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Room", "Room")
+                        .WithMany("Booking")
+                        .HasForeignKey("RoomGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("API.Models.Education", b =>
+                {
+                    b.HasOne("API.Models.Employee", "Employee")
+                        .WithOne("Education")
+                        .HasForeignKey("API.Models.Education", "Guid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.University", "University")
+                        .WithMany("Education")
+                        .HasForeignKey("UniversityGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("University");
+                });
+
+            modelBuilder.Entity("API.Models.Account", b =>
+                {
+                    b.Navigation("AccountRole");
+                });
+
+            modelBuilder.Entity("API.Models.Employee", b =>
+                {
+                    b.Navigation("Account");
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Education");
+                });
+
+            modelBuilder.Entity("API.Models.Role", b =>
+                {
+                    b.Navigation("AccountRole");
+                });
+
+            modelBuilder.Entity("API.Models.Room", b =>
+                {
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("API.Models.University", b =>
+                {
+                    b.Navigation("Education");
                 });
 #pragma warning restore 612, 618
         }
