@@ -14,10 +14,18 @@ public class EmployeeController : GenericAllController<Employee>
         
     }
 
-   /* [HttpGet]
+    //Non Generic
+    private readonly IEmployeeRepository _employeeRepository;
+
+    public EmployeeController(IEmployeeRepository employeeRepository)
+    {
+        _employeeRepository = employeeRepository;
+    }
+
+    [HttpGet]
     public IActionResult GetAll()
     {
-        var result = _repositoryT.GetAll();
+        var result = _employeeRepository.GetAll();
         if (!result.Any())
         {
             return NotFound("Data Not Found");
@@ -29,7 +37,7 @@ public class EmployeeController : GenericAllController<Employee>
     [HttpGet("{guid}")]
     public IActionResult GetByGuid(Guid guid)
     {
-        var result = _repositoryT.GetByGuid(guid);
+        var result = _employeeRepository.GetByGuid(guid);
         if (result is null)
         {
             return NotFound("Id Not Found");
@@ -38,9 +46,9 @@ public class EmployeeController : GenericAllController<Employee>
     }
 
     [HttpPost]
-    public IActionResult Create(T T)
+    public IActionResult Create(Employee employee)
     {
-        var result = _repositoryT.Create(T);
+        var result = _employeeRepository.Create(employee);
         if (result is null)
         {
             return BadRequest("Failed to create data");
@@ -50,13 +58,13 @@ public class EmployeeController : GenericAllController<Employee>
     }
 
     [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] T T)
+    public IActionResult Update(Guid guid, [FromBody] Employee employee)
     {
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingEmployee = _employeeRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingEmployee == null)
         {
-            return NotFound("University not found");
+            return NotFound("Role not found");
         }
 
         if (!ModelState.IsValid)
@@ -64,18 +72,16 @@ public class EmployeeController : GenericAllController<Employee>
             return BadRequest(ModelState);
         }
 
+        existingEmployee.BirthDate = employee.BirthDate; //update code dengan code dari inputan
 
-        *//*   existingUniversity.Code = university.Code; //update code dengan code dari inputan
-           existingUniversity.Name = university.Name; //update name dengan name baru yang ada di inputan*//*
+        var updatedRole = _employeeRepository.Update(existingEmployee);
 
-        var updatedRepository = _repositoryT.Update(existingRepository);
-
-        if (updatedRepository == null)
+        if (updatedRole == null)
         {
             return BadRequest("Failed to update university");
         }
 
-        return Ok(updatedRepository);
+        return Ok(updatedRole);
     }
 
 
@@ -84,22 +90,22 @@ public class EmployeeController : GenericAllController<Employee>
     public IActionResult Delete(Guid guid)
     {
         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingEmployee = _employeeRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingEmployee == null)
         {
-            return NotFound($"{_repositoryT} not found");
+            return NotFound("Role not found");
         }
 
-        var deletedRepository = _repositoryT.Delete(existingRepository);
+        var deletedEmployee = _employeeRepository.Delete(existingEmployee);
 
-        if (deletedRepository == null)
+        if (deletedEmployee == null)
         {
-            return BadRequest($"Failed to delete {_repositoryT}");
+            return BadRequest("Failed to delete Role");
         }
 
-        return Ok(deletedRepository);
-    }*/
+        return Ok(deletedEmployee);
+    }
 
 
 }

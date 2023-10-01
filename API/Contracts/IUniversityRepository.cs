@@ -2,7 +2,7 @@
 
 namespace API.Contracts
 {
-    public interface IUniversityReposiroty
+    public interface IUniversityRepository
     {
         IEnumerable<University> GetAll();
         University? Create(University university);

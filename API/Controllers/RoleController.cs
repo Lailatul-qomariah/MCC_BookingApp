@@ -14,10 +14,20 @@ public class RoleController : GenericAllController<Role>
         
     }
 
-   /* [HttpGet]
+
+
+  /*  //Non Generic
+    private readonly IRoleRepository _roleRepository;
+
+    public RoleController(IRoleRepository roleRepository)
+    {
+        _roleRepository = roleRepository;
+    }
+
+    [HttpGet]
     public IActionResult GetAll()
     {
-        var result = _repositoryT.GetAll();
+        var result = _roleRepository.GetAll();
         if (!result.Any())
         {
             return NotFound("Data Not Found");
@@ -29,7 +39,7 @@ public class RoleController : GenericAllController<Role>
     [HttpGet("{guid}")]
     public IActionResult GetByGuid(Guid guid)
     {
-        var result = _repositoryT.GetByGuid(guid);
+        var result = _roleRepository.GetByGuid(guid);
         if (result is null)
         {
             return NotFound("Id Not Found");
@@ -38,9 +48,9 @@ public class RoleController : GenericAllController<Role>
     }
 
     [HttpPost]
-    public IActionResult Create(T T)
+    public IActionResult Create(Role role)
     {
-        var result = _repositoryT.Create(T);
+        var result = _roleRepository.Create(role);
         if (result is null)
         {
             return BadRequest("Failed to create data");
@@ -50,13 +60,13 @@ public class RoleController : GenericAllController<Role>
     }
 
     [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] T T)
+    public IActionResult Update(Guid guid, [FromBody] Role role)
     {
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingRole = _roleRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingRole == null)
         {
-            return NotFound("University not found");
+            return NotFound("Role not found");
         }
 
         if (!ModelState.IsValid)
@@ -64,18 +74,17 @@ public class RoleController : GenericAllController<Role>
             return BadRequest(ModelState);
         }
 
+        existingRole.Code = university.Code; //update code dengan code dari inputan
+        existingRole.Name = university.Name; //update name dengan name baru yang ada di inputan
 
-        *//*   existingUniversity.Code = university.Code; //update code dengan code dari inputan
-           existingUniversity.Name = university.Name; //update name dengan name baru yang ada di inputan*//*
+        var updatedRole = _roleRepository.Update(existingRole);
 
-        var updatedRepository = _repositoryT.Update(existingRepository);
-
-        if (updatedRepository == null)
+        if (updatedRole == null)
         {
             return BadRequest("Failed to update university");
         }
 
-        return Ok(updatedRepository);
+        return Ok(updatedRole);
     }
 
 
@@ -84,21 +93,21 @@ public class RoleController : GenericAllController<Role>
     public IActionResult Delete(Guid guid)
     {
         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingRole = _roleRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingRole == null)
         {
-            return NotFound($"{_repositoryT} not found");
+            return NotFound("Role not found");
         }
 
-        var deletedRepository = _repositoryT.Delete(existingRepository);
+        var deletedRole = _roleRepository.Delete(existingRole);
 
-        if (deletedRepository == null)
+        if (deletedRole == null)
         {
-            return BadRequest($"Failed to delete {_repositoryT}");
+            return BadRequest("Failed to delete Role");
         }
 
-        return Ok(deletedRepository);
+        return Ok(deletedRole);
     }*/
 
 

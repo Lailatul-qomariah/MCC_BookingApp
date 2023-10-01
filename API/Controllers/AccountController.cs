@@ -14,10 +14,18 @@ public class AccountController : GenericAllController<Account>
         
     }
 
-   /* [HttpGet]
+
+   /* private readonly IAccountRepository _accountRepository;
+
+    public AccountController(IAccountRepository accountRepository)
+    {
+        _accountRepository = accountRepository;
+    }
+
+    [HttpGet]
     public IActionResult GetAll()
     {
-        var result = _repositoryT.GetAll();
+        var result = _accountRepository.GetAll();
         if (!result.Any())
         {
             return NotFound("Data Not Found");
@@ -29,7 +37,7 @@ public class AccountController : GenericAllController<Account>
     [HttpGet("{guid}")]
     public IActionResult GetByGuid(Guid guid)
     {
-        var result = _repositoryT.GetByGuid(guid);
+        var result = _accountRepository.GetByGuid(guid);
         if (result is null)
         {
             return NotFound("Id Not Found");
@@ -38,9 +46,9 @@ public class AccountController : GenericAllController<Account>
     }
 
     [HttpPost]
-    public IActionResult Create(T T)
+    public IActionResult Create(Account account)
     {
-        var result = _repositoryT.Create(T);
+        var result = _accountRepository.Create(account);
         if (result is null)
         {
             return BadRequest("Failed to create data");
@@ -50,13 +58,13 @@ public class AccountController : GenericAllController<Account>
     }
 
     [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] T T)
+    public IActionResult Update(Guid guid, [FromBody] Account account)
     {
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingAccount = _accountRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingAccount == null)
         {
-            return NotFound("University not found");
+            return NotFound("Data not found");
         }
 
         if (!ModelState.IsValid)
@@ -64,18 +72,17 @@ public class AccountController : GenericAllController<Account>
             return BadRequest(ModelState);
         }
 
+        //booking
+        existingAccount.Otp = account.Otp; //update code dengan code dari inputan
 
-        *//*   existingUniversity.Code = university.Code; //update code dengan code dari inputan
-           existingUniversity.Name = university.Name; //update name dengan name baru yang ada di inputan*//*
+        var updatedAccount = _accountRepository.Update(existingAccount);
 
-        var updatedRepository = _repositoryT.Update(existingRepository);
-
-        if (updatedRepository == null)
+        if (updatedAccount == null)
         {
-            return BadRequest("Failed to update university");
+            return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedRepository);
+        return Ok(updatedAccount);
     }
 
 
@@ -84,21 +91,21 @@ public class AccountController : GenericAllController<Account>
     public IActionResult Delete(Guid guid)
     {
         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingAccount = _accountRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingAccount == null)
         {
-            return NotFound($"{_repositoryT} not found");
+            return NotFound("Data not found");
         }
 
-        var deletedRepository = _repositoryT.Delete(existingRepository);
+        var deletedAccount = _accountRepository.Delete(existingAccount);
 
-        if (deletedRepository == null)
+        if (deletedAccount == null)
         {
-            return BadRequest($"Failed to delete {_repositoryT}");
+            return BadRequest("Failed to delete data");
         }
 
-        return Ok(deletedRepository);
+        return Ok(deletedAccount);
     }*/
 
 

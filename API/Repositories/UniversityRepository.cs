@@ -4,7 +4,7 @@ using API.Models;
 
 namespace API.Repositories
 {
-    public class UniversityRepository : IAllRepository<University>
+    public class UniversityRepository : IUniversityRepository
 
     {
         private readonly BookingManagementDBContext _context;

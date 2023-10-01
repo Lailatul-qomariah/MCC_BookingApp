@@ -14,10 +14,18 @@ public class AccountRoleController : GenericAllController<AccountRole>
         
     }
 
-   /* [HttpGet]
+
+   /* private readonly IBookingRepository _bookingRepository;
+
+    public AccountRoleController(IBookingRepository bookingRepository)
+    {
+        _bookingRepository = bookingRepository;
+    }
+
+    [HttpGet]
     public IActionResult GetAll()
     {
-        var result = _repositoryT.GetAll();
+        var result = _bookingRepository.GetAll();
         if (!result.Any())
         {
             return NotFound("Data Not Found");
@@ -29,7 +37,7 @@ public class AccountRoleController : GenericAllController<AccountRole>
     [HttpGet("{guid}")]
     public IActionResult GetByGuid(Guid guid)
     {
-        var result = _repositoryT.GetByGuid(guid);
+        var result = _bookingRepository.GetByGuid(guid);
         if (result is null)
         {
             return NotFound("Id Not Found");
@@ -38,9 +46,9 @@ public class AccountRoleController : GenericAllController<AccountRole>
     }
 
     [HttpPost]
-    public IActionResult Create(T T)
+    public IActionResult Create(Booking booking)
     {
-        var result = _repositoryT.Create(T);
+        var result = _bookingRepository.Create(booking);
         if (result is null)
         {
             return BadRequest("Failed to create data");
@@ -50,13 +58,13 @@ public class AccountRoleController : GenericAllController<AccountRole>
     }
 
     [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] T T)
+    public IActionResult Update(Guid guid, [FromBody] Booking booking)
     {
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingBooking = _bookingRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingBooking == null)
         {
-            return NotFound("University not found");
+            return NotFound("Data not found");
         }
 
         if (!ModelState.IsValid)
@@ -64,18 +72,17 @@ public class AccountRoleController : GenericAllController<AccountRole>
             return BadRequest(ModelState);
         }
 
+        //booking
+        existingBooking.Remarks = booking.Remarks; //update code dengan code dari inputan
 
-        *//*   existingUniversity.Code = university.Code; //update code dengan code dari inputan
-           existingUniversity.Name = university.Name; //update name dengan name baru yang ada di inputan*//*
+        var updatedBooking = _bookingRepository.Update(existingBooking);
 
-        var updatedRepository = _repositoryT.Update(existingRepository);
-
-        if (updatedRepository == null)
+        if (updatedBooking == null)
         {
-            return BadRequest("Failed to update university");
+            return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedRepository);
+        return Ok(updatedBooking);
     }
 
 
@@ -84,21 +91,21 @@ public class AccountRoleController : GenericAllController<AccountRole>
     public IActionResult Delete(Guid guid)
     {
         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingRepository = _repositoryT.GetByGuid(guid);
+        var existingBooking = _bookingRepository.GetByGuid(guid);
 
-        if (existingRepository == null)
+        if (existingBooking == null)
         {
-            return NotFound($"{_repositoryT} not found");
+            return NotFound("Role not found");
         }
 
-        var deletedRepository = _repositoryT.Delete(existingRepository);
+        var deletedBooking = _bookingRepository.Delete(existingBooking);
 
-        if (deletedRepository == null)
+        if (deletedBooking == null)
         {
-            return BadRequest($"Failed to delete {_repositoryT}");
+            return BadRequest("Failed to delete data");
         }
 
-        return Ok(deletedRepository);
+        return Ok(deletedBooking);
     }*/
 
 

@@ -11,103 +11,105 @@ public class RoomController : GenericAllController<Room>
 
     public RoomController(IAllRepository<Room> repositoryT) : base(repositoryT)
     {
-        
+
     }
 
-   /* private readonly IAllRepository<Room> _room;
 
-    public RoomController(IAllRepository<Room> room)
+
+  /*  //Non Generic
+    private readonly IRoomRepository _roomRepository;
+
+    public RoomController(IRoomRepository roomRepository)
     {
-        _room = room;
+        _roomRepository = roomRepository;
+    }
+
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        var result = _roomRepository.GetAll();
+        if (!result.Any())
+        {
+            return NotFound("Data Not Found");
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("{guid}")]
+    public IActionResult GetByGuid(Guid guid)
+    {
+        var result = _roomRepository.GetByGuid(guid);
+        if (result is null)
+        {
+            return NotFound("Id Not Found");
+        }
+        return Ok(result);
+    }
+
+    [HttpPost]
+    public IActionResult Create(Room room)
+    {
+        var result = _roomRepository.Create(room);
+        if (result is null)
+        {
+            return BadRequest("Failed to create data");
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPut("{guid}")]
+    public IActionResult Update(Guid guid, [FromBody] Room room)
+    {
+        var existingRoom = _roomRepository.GetByGuid(guid);
+
+        if (existingRoom == null)
+        {
+            return NotFound("University not found");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        //example
+        existingRoom.Code = university.Code; //update code dengan code dari inputan
+        existingRoom.Name = university.Name; //update name dengan name baru yang ada di inputan
+
+        var updatedRoom = _roomRepository.Update(existingRoom);
+
+        if (updatedRoom == null)
+        {
+            return BadRequest("Failed to update Room");
+        }
+
+        return Ok(updatedRoom);
+    }
+
+
+
+    [HttpDelete("{guid}")]
+    public IActionResult Delete(Guid guid)
+    {
+        // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
+        var existingRoom = _roomRepository.GetByGuid(guid);
+
+        if (existingRoom == null)
+        {
+            return NotFound("Room not found");
+        }
+
+        var deletedRoom = _roomRepository.Delete(existingRoom);
+
+        if (deletedRoom == null)
+        {
+            return BadRequest("Failed to delete university");
+        }
+
+        return Ok(deletedRoom);
     }*/
-
-    /* [HttpGet]
-     public IActionResult GetAll()
-     {
-         var result = _repositoryT.GetAll();
-         if (!result.Any())
-         {
-             return NotFound("Data Not Found");
-         }
-
-         return Ok(result);
-     }
-
-     [HttpGet("{guid}")]
-     public IActionResult GetByGuid(Guid guid)
-     {
-         var result = _repositoryT.GetByGuid(guid);
-         if (result is null)
-         {
-             return NotFound("Id Not Found");
-         }
-         return Ok(result);
-     }
-
-     [HttpPost]
-     public IActionResult Create(T T)
-     {
-         var result = _repositoryT.Create(T);
-         if (result is null)
-         {
-             return BadRequest("Failed to create data");
-         }
-
-         return Ok(result);
-     }
-
-     [HttpPut("{guid}")]
-     public IActionResult Update(Guid guid, [FromBody] T T)
-     {
-         var existingRepository = _repositoryT.GetByGuid(guid);
-
-         if (existingRepository == null)
-         {
-             return NotFound("University not found");
-         }
-
-         if (!ModelState.IsValid)
-         {
-             return BadRequest(ModelState);
-         }
-
-
-         *//*   existingUniversity.Code = university.Code; //update code dengan code dari inputan
-            existingUniversity.Name = university.Name; //update name dengan name baru yang ada di inputan*//*
-
-         var updatedRepository = _repositoryT.Update(existingRepository);
-
-         if (updatedRepository == null)
-         {
-             return BadRequest("Failed to update university");
-         }
-
-         return Ok(updatedRepository);
-     }
-
-
-
-     [HttpDelete("{guid}")]
-     public IActionResult Delete(Guid guid)
-     {
-         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-         var existingRepository = _repositoryT.GetByGuid(guid);
-
-         if (existingRepository == null)
-         {
-             return NotFound($"{_repositoryT} not found");
-         }
-
-         var deletedRepository = _repositoryT.Delete(existingRepository);
-
-         if (deletedRepository == null)
-         {
-             return BadRequest($"Failed to delete {_repositoryT}");
-         }
-
-         return Ok(deletedRepository);
-     }*/
-
 
 }
 
