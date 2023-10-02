@@ -14,7 +14,7 @@ public class EducationController : ControllerBase
 
      }*/
 
-    //Non Generic
+  /*  //Non Generic
     private readonly IEducationRepository _educationRepository;
 
     public EducationController(IEducationRepository educationRepository)
@@ -109,7 +109,7 @@ public class EducationController : ControllerBase
         }
 
         return Ok(deletedEducation);
-    }
+    }*/
 
 
 }

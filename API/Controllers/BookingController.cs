@@ -8,13 +8,13 @@ namespace API.Controllers;
 
 public class BookingController : GenericAllController<Booking>
 {
-
+    //inheritance ke genericAllController
     public BookingController(IAllRepository<Booking> repositoryT) : base(repositoryT)
     {
         
     }
 
-    //Non Generic
+   /* //Non Generic
     private readonly IBookingRepository _bookingRepository;
 
     public BookingController(IBookingRepository bookingRepository)
@@ -110,7 +110,7 @@ public class BookingController : GenericAllController<Booking>
         }
 
         return Ok(deletedBooking);
-    }
+    }*/
 
 
 }

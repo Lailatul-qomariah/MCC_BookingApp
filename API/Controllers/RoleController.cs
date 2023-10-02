@@ -9,6 +9,7 @@ namespace API.Controllers;
 public class RoleController : GenericAllController<Role>
 {
     //GENERIC
+    //inheritance ke genericAllController
     public RoleController(IAllRepository<Role> repositoryT) : base(repositoryT)
     {
         

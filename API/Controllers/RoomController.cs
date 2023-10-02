@@ -6,13 +6,14 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class RoomController : ControllerBase
+public class RoomController : GenericAllController<Room>
 {
     //GENERIC
-    /*public RoomController(IAllRepository<Room> repositoryT) : base(repositoryT)
+    //inheritance ke genericAllController
+    public RoomController(IAllRepository<Room> repositoryT) : base(repositoryT)
     {
 
-    }*/
+    }
 
 
 

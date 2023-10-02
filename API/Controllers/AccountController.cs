@@ -8,7 +8,7 @@ namespace API.Controllers;
 
 public class AccountController : GenericAllController<Account>
 {
-
+    //inheritance ke genericAllController
     public AccountController(IAllRepository<Account> repositoryT) : base(repositoryT)
     {
         
