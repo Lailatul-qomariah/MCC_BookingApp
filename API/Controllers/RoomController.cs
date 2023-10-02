@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Rooms;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,18 +7,18 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class RoomController : GenericAllController<Room>
+public class RoomController : ControllerBase
 {
     //GENERIC
     //inheritance ke genericAllController
-    public RoomController(IAllRepository<Room> repositoryT) : base(repositoryT)
+    /*public RoomController(IGenericRepository<Room> repositoryT) : base(repositoryT)
     {
 
-    }
+    }*/
 
 
 
-    /*//Non Generic
+    //Non Generic
     private readonly IRoomRepository _roomRepository;
 
     public RoomController(IRoomRepository roomRepository)
@@ -34,7 +35,16 @@ public class RoomController : GenericAllController<Room>
             return NotFound("Data Not Found");
         }
 
-        return Ok(result);
+        var data = result.Select(x => (RoomDto)x);
+
+        /*var universityDto = new List<UniversityDto>();
+        foreach (var university in result)
+        {
+            universityDto.Add((UniversityDto) university);
+        }*/
+
+        return Ok(data);
+
     }
 
     [HttpGet("{guid}")]
@@ -45,48 +55,41 @@ public class RoomController : GenericAllController<Room>
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((RoomDto)result);
     }
 
+
     [HttpPost]
-    public IActionResult Create(Room room)
+    public IActionResult Create(CreateRoomDto roomDto)
     {
-        var result = _roomRepository.Create(room);
+        var result = _roomRepository.Create(roomDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((RoomDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] Room room)
+    [HttpPut]
+    public IActionResult Update(RoomDto roomDto)
     {
-        var existingRoom = _roomRepository.GetByGuid(guid);
-
-        if (existingRoom == null)
+        var entity = _roomRepository.GetByGuid(roomDto.Guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        Room toUpdate = roomDto;
+        toUpdate.CreatedDate = entity.CreatedDate;
 
-        //example
-        existingRoom.Name = room.Name; //update name dengan name baru yang ada di inputan
-        existingRoom.Floor = room.Floor;
-        existingRoom.Capacity = room.Capacity;
-        var updatedRoom = _roomRepository.Update(existingRoom);
-
-        if (updatedRoom == null)
+        var result = _roomRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedRoom);
+        return Ok("Data Updated");
     }
 
 
@@ -95,22 +98,21 @@ public class RoomController : GenericAllController<Room>
     public IActionResult Delete(Guid guid)
     {
         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingRoom = _roomRepository.GetByGuid(guid);
+        var existingUniversity = _roomRepository.GetByGuid(guid);
 
-        if (existingRoom == null)
+        if (existingUniversity == null)
         {
             return NotFound("Data not found");
         }
 
-        var deletedRoom = _roomRepository.Delete(existingRoom);
+        var deletedUniversity = _roomRepository.Delete(existingUniversity);
 
-        if (deletedRoom == null)
+        if (deletedUniversity == null)
         {
             return BadRequest("Failed to delete data");
         }
 
-        return Ok(deletedRoom);
-    }*/
-
+        return Ok(deletedUniversity);
+    }
 }
 

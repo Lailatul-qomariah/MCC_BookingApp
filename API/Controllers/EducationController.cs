@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Educations;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ public class EducationController : ControllerBase
 
      }*/
 
-  /*  //Non Generic
+    //Non Generic
     private readonly IEducationRepository _educationRepository;
 
     public EducationController(IEducationRepository educationRepository)
@@ -31,7 +32,9 @@ public class EducationController : ControllerBase
             return NotFound("Data Not Found");
         }
 
-        return Ok(result);
+        var data = result.Select(x => (EducationDto)x);
+
+        return Ok(data);
     }
 
     [HttpGet("{guid}")]
@@ -42,74 +45,60 @@ public class EducationController : ControllerBase
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((EducationDto)result);
     }
 
     [HttpPost]
-    public IActionResult Create(Education education)
+    public IActionResult Create(CreateEducationDto educationDto)
     {
-        var result = _educationRepository.Create(education);
+        var result = _educationRepository.Create(educationDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((EducationDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] Education education)
+    [HttpPut]
+    public IActionResult Update(EducationDto educationDto)
     {
-        var existingEducation = _educationRepository.GetByGuid(guid);
-
-        if (existingEducation == null)
+        var entity = _educationRepository.GetByGuid(educationDto.Guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        Education toUpdate = educationDto;
+        toUpdate.CreatedDate = entity.CreatedDate;
 
-        //education
-        existingEducation.Major = education.Major; //update code dengan code dari inputan
-        existingEducation.Degree = education.Degree;
-        existingEducation.Gpa = education.Gpa;
-        existingEducation.UniversityGuid = education.UniversityGuid;
-
-        var updatedEducation = _educationRepository.Update(existingEducation);
-
-        if (updatedEducation == null)
+        var result = _educationRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedEducation);
+        return Ok("Data Updated");
+
     }
-
-
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingEducation = _educationRepository.GetByGuid(guid);
-
-        if (existingEducation == null)
+        var entity = _educationRepository.GetByGuid(guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        var deletedEducation = _educationRepository.Delete(existingEducation);
-
-        if (deletedEducation == null)
+        var result = _educationRepository.Delete(entity);
+        if (!result)
         {
             return BadRequest("Failed to delete data");
         }
 
-        return Ok(deletedEducation);
-    }*/
+        return Ok("Data Deleted");
+    }
 
 
 }

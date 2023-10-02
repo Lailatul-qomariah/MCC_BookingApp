@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Bookings;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,15 +7,15 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class BookingController : GenericAllController<Booking>
+public class BookingController : ControllerBase
 {
     //inheritance ke genericAllController
-    public BookingController(IAllRepository<Booking> repositoryT) : base(repositoryT)
-    {
-        
-    }
+    /* public BookingController(IGenericRepository<Booking> repositoryT) : base(repositoryT)
+     {
 
-   /* //Non Generic
+     }*/
+
+    //Non Generic
     private readonly IBookingRepository _bookingRepository;
 
     public BookingController(IBookingRepository bookingRepository)
@@ -31,7 +32,16 @@ public class BookingController : GenericAllController<Booking>
             return NotFound("Data Not Found");
         }
 
-        return Ok(result);
+        var data = result.Select(x => (BookingDto)x);
+
+        /*var universityDto = new List<UniversityDto>();
+        foreach (var university in result)
+        {
+            universityDto.Add((UniversityDto) university);
+        }*/
+
+        return Ok(data);
+
     }
 
     [HttpGet("{guid}")]
@@ -42,51 +52,41 @@ public class BookingController : GenericAllController<Booking>
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((BookingDto)result);
     }
 
+
     [HttpPost]
-    public IActionResult Create(Booking booking)
+    public IActionResult Create(CreateBookingDto bookingDto)
     {
-        var result = _bookingRepository.Create(booking);
+        var result = _bookingRepository.Create(bookingDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((BookingDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] Booking booking)
+    [HttpPut]
+    public IActionResult Update(BookingDto bookingDto)
     {
-        var existingBooking = _bookingRepository.GetByGuid(guid);
-
-        if (existingBooking == null)
+        var entity = _bookingRepository.GetByGuid(bookingDto.Guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        Booking toUpdate = bookingDto;
+        toUpdate.CreatedDate = entity.CreatedDate;
 
-        existingBooking.StartDate = booking.StartDate;
-        existingBooking.EndDate = booking.EndDate;
-        existingBooking.Status = booking.Status;
-        existingBooking.Remarks = booking.Remarks; //update value dengan value dari inputan
-        existingBooking.RoomGuid = booking.RoomGuid;
-        existingBooking.EmployeeGuid = booking.EmployeeGuid;
-
-        var updatedBooking = _bookingRepository.Update(existingBooking);
-
-        if (updatedBooking == null)
+        var result = _bookingRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedBooking);
+        return Ok("Data Updated");
     }
 
 
@@ -95,23 +95,22 @@ public class BookingController : GenericAllController<Booking>
     public IActionResult Delete(Guid guid)
     {
         // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingBooking = _bookingRepository.GetByGuid(guid);
+        var existingUniversity = _bookingRepository.GetByGuid(guid);
 
-        if (existingBooking == null)
+        if (existingUniversity == null)
         {
-            return NotFound("Data not found");
+            return NotFound("University not found");
         }
 
-        var deletedBooking = _bookingRepository.Delete(existingBooking);
+        var deletedUniversity = _bookingRepository.Delete(existingUniversity);
 
-        if (deletedBooking == null)
+        if (deletedUniversity == null)
         {
-            return BadRequest("Failed to delete data");
+            return BadRequest("Failed to delete university");
         }
 
-        return Ok(deletedBooking);
-    }*/
-
+        return Ok(deletedUniversity);
+    }
 
 }
 

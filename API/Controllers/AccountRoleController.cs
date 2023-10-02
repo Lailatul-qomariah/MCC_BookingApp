@@ -1,21 +1,23 @@
 ﻿using API.Contracts;
+using API.DTOs.AccountRoles;
 using API.Models;
+using API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class AccountRoleController : GenericAllController<AccountRole>
+public class AccountRoleController : ControllerBase
 {
     //inheritance ke genericAllController
-    public AccountRoleController(IAllRepository<AccountRole> repositoryT) : base(repositoryT)
+    /*public AccountRoleController(IGenericRepository<AccountRole> repositoryT) : base(repositoryT)
     {
         
     }
+*/
 
-
-   /* private readonly IAccountRoleRepository _accountRoleRepository;
+    private readonly IAccountRoleRepository _accountRoleRepository;
 
     public AccountRoleController(IAccountRoleRepository accountRoleRepository)
     {
@@ -31,6 +33,7 @@ public class AccountRoleController : GenericAllController<AccountRole>
             return NotFound("Data Not Found");
         }
 
+        var data = result.Select(x => (AccountRoleDto)x);
         return Ok(result);
     }
 
@@ -42,47 +45,42 @@ public class AccountRoleController : GenericAllController<AccountRole>
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((AccountRoleDto)result);
     }
 
     [HttpPost]
-    public IActionResult Create(AccountRole accountRole)
+    public IActionResult Create(CreateAccountRoleDto accountRoleDto)
     {
-        var result = _accountRoleRepository.Create(accountRole);
+        var result = _accountRoleRepository.Create(accountRoleDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((AccountRoleDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] AccountRole accountRole)
+    [HttpPut]
+    public IActionResult Update(AccountRoleDto accountRoleDto)
     {
-        var existingARole = _accountRoleRepository.GetByGuid(guid);
 
-        if (existingARole == null)
+        var existingEmployee = _accountRoleRepository.GetByGuid(accountRoleDto.Guid);
+
+        if (existingEmployee == null)
         {
-            return NotFound("Data not found");
+            return NotFound("Employee not found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        AccountRole toUpdate = accountRoleDto;
+        toUpdate.CreatedDate = existingEmployee.CreatedDate;
 
-        existingARole.AccountGuid = accountRole.AccountGuid;
-        existingARole.RoleGuid = accountRole.RoleGuid;
-
-        var updatedARole = _accountRoleRepository.Update(existingARole);
-
-        if (updatedARole == null)
+        var result = _accountRoleRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedARole);
+        return Ok("Data Updated");
     }
 
 
@@ -90,24 +88,24 @@ public class AccountRoleController : GenericAllController<AccountRole>
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingARole = _accountRoleRepository.GetByGuid(guid);
+        var existingAccount = _accountRoleRepository.GetByGuid(guid);
 
-        if (existingARole == null)
+        if (existingAccount is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Account not found");
         }
 
-        var deletedARole = _accountRoleRepository.Delete(existingARole);
+        var deleted = _accountRoleRepository.Delete(existingAccount);
 
-        if (deletedARole == null)
+        if (!deleted)
         {
-            return BadRequest("Failed to delete data");
+            return BadRequest("Failed to delete account");
         }
 
-        return Ok(deletedARole);
-    }*/
-
-
+        return NoContent(); // Kode status 204 No Content untuk sukses penghapusan tanpa respons.
+    }
 }
+
+
+
 

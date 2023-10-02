@@ -2,14 +2,9 @@
 
 namespace API.Contracts
 {
-    public interface IAccountRepository
+    public interface IAccountRepository : IGenericRepository<Account>
     {
-        IEnumerable<Account> GetAll();
-        Account? GetByGuid(Guid guid);
-        Account? Create(Account account);
-        bool Update(Account account);
-        bool Delete(Account account);
-
+       
 
     }
 }

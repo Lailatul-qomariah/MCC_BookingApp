@@ -1,15 +1,8 @@
 ﻿using API.Models;
 
-namespace API.Contracts
+namespace API.Contracts;
+
+public interface IBookingRepository : IGenericRepository<Booking>
 {
-    public interface IBookingRepository
-    {
-        IEnumerable<Booking> GetAll();
-        Booking? GetByGuid(Guid guid);
-        Booking? Create(Booking booking);
-        bool Update(Booking booking);
-        bool Delete(Booking booking);
 
-
-    }
 }

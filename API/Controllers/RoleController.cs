@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Roles;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,18 +7,17 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class RoleController : GenericAllController<Role>
+public class RoleController : ControllerBase
 {
     //GENERIC
     //inheritance ke genericAllController
-    public RoleController(IAllRepository<Role> repositoryT) : base(repositoryT)
-    {
-        
-    }
+    /* public RoleController(IGenericRepository<Role> repositoryT) : base(repositoryT)
+     {
+
+     }*/
 
 
-
-  /*  //Non Generic
+    //Non Generic
     private readonly IRoleRepository _roleRepository;
 
     public RoleController(IRoleRepository roleRepository)
@@ -34,7 +34,9 @@ public class RoleController : GenericAllController<Role>
             return NotFound("Data Not Found");
         }
 
-        return Ok(result);
+        var data = result.Select(x => (RoleDto)x);
+
+        return Ok(data);
     }
 
     [HttpGet("{guid}")]
@@ -45,70 +47,60 @@ public class RoleController : GenericAllController<Role>
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((RoleDto)result);
     }
 
     [HttpPost]
-    public IActionResult Create(Role role)
+    public IActionResult Create(CreateRoleDto roleDto)
     {
-        var result = _roleRepository.Create(role);
+        var result = _roleRepository.Create(roleDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((RoleDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] Role role)
+    [HttpPut]
+    public IActionResult Update(RoleDto roleDto)
     {
-        var existingRole = _roleRepository.GetByGuid(guid);
-
-        if (existingRole == null)
+        var entity = _roleRepository.GetByGuid(roleDto.Guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        Role toUpdate = roleDto;
+        toUpdate.CreatedDate = entity.CreatedDate;
 
-        existingRole.Name = university.Name; //update name dengan name baru yang ada di inputan
-
-        var updatedRole = _roleRepository.Update(existingRole);
-
-        if (updatedRole == null)
+        var result = _roleRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedRole);
+        return Ok("Data Updated");
+
     }
-
-
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingRole = _roleRepository.GetByGuid(guid);
-
-        if (existingRole == null)
+        var entity = _roleRepository.GetByGuid(guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        var deletedRole = _roleRepository.Delete(existingRole);
-
-        if (deletedRole == null)
+        var result = _roleRepository.Delete(entity);
+        if (!result)
         {
             return BadRequest("Failed to delete data");
         }
 
-        return Ok(deletedRole);
-    }*/
+        return Ok("Data Deleted");
+    }
 
 
 }

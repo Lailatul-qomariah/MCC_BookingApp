@@ -1,15 +1,8 @@
 ﻿using API.Models;
 
-namespace API.Contracts
+namespace API.Contracts;
+
+public interface IRoleRepository : IGenericRepository<Role>
 {
-    public interface IRoleRepository
-    {
-        IEnumerable<Role> GetAll();
-        Role? GetByGuid(Guid guid);
-        Role? Create(Role role);
-        bool Update(Role role);
-        bool Delete(Role role);
 
-
-    }
 }

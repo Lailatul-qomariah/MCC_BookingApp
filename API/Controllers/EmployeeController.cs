@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Employees;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +10,9 @@ namespace API.Controllers;
 public class EmployeeController : ControllerBase
 {
     //GENERIC
-   /* public EmployeeController(IAllRepository<Employee> repositoryT) : base(repositoryT)
+    /*public EmployeeController(IGenericRepository<Employee> repositoryT) : base(repositoryT)
     {
-        
+
     }*/
 
     //Non Generic
@@ -31,6 +32,7 @@ public class EmployeeController : ControllerBase
             return NotFound("Data Not Found");
         }
 
+        var data = result.Select(x => (EmployeeDto)x);
         return Ok(result);
     }
 
@@ -42,75 +44,63 @@ public class EmployeeController : ControllerBase
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((EmployeeDto)result);
     }
 
     [HttpPost]
-    public IActionResult Create(Employee employee)
+    public IActionResult Create(CreateEmployeeDto createEmpDto)
     {
-        var result = _employeeRepository.Create(employee);
+        var result = _employeeRepository.Create(createEmpDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((EmployeeDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] Employee employee)
+    [HttpPut]
+    public IActionResult Update(EmployeeDto employeeDto)
     {
-        var existingEmployee = _employeeRepository.GetByGuid(guid);
+
+        var existingEmployee = _employeeRepository.GetByGuid(employeeDto.Guid);
 
         if (existingEmployee == null)
         {
-            return NotFound("Data not found");
+            return NotFound("Employee not found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        existingEmployee.Nik = employee.Nik;
-        existingEmployee.FirstName = employee.FirstName;
-        existingEmployee.LastName = employee.LastName;
-        existingEmployee.BirthDate = employee.BirthDate; //update code dengan code dari inputan
-        existingEmployee.Gender = employee.Gender;
-        existingEmployee.HiringDate = employee.HiringDate;
-        existingEmployee.Email = employee.Email;
-        existingEmployee.PhoneNumber = employee.PhoneNumber;
-        
-        var updatedRole = _employeeRepository.Update(existingEmployee);
+        Employee toUpdate = employeeDto;
+        toUpdate.CreatedDate = existingEmployee.CreatedDate;
 
-        if (updatedRole == null)
+        var result = _employeeRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedRole);
+        return Ok("Data Updated");
     }
-
 
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
         var existingEmployee = _employeeRepository.GetByGuid(guid);
 
-        if (existingEmployee == null)
+        if (existingEmployee is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Employee not found");
         }
 
-        var deletedEmployee = _employeeRepository.Delete(existingEmployee);
+        var deleted = _employeeRepository.Delete(existingEmployee);
 
-        if (deletedEmployee == null)
+        if (!deleted)
         {
-            return BadRequest("Failed to delete data");
+            return BadRequest("Failed to delete employee");
         }
 
-        return Ok(deletedEmployee);
+        return NoContent(); // Kode status 204 No Content untuk sukses penghapusan tanpa respons.
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Accounts;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,16 +7,16 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class AccountController : GenericAllController<Account>
+public class AccountController : ControllerBase
 {
     //inheritance ke genericAllController
-    public AccountController(IAllRepository<Account> repositoryT) : base(repositoryT)
+    /*public AccountController(IGenericRepository<Account> repositoryT) : base(repositoryT)
     {
         
-    }
+    }*/
 
 
-    /*private readonly IAccountRepository _accountRepository;
+    private readonly IAccountRepository _accountRepository;
 
     public AccountController(IAccountRepository accountRepository)
     {
@@ -31,7 +32,9 @@ public class AccountController : GenericAllController<Account>
             return NotFound("Data Not Found");
         }
 
-        return Ok(result);
+        var data = result.Select(x => (AccountDto)x);
+
+        return Ok(data);
     }
 
     [HttpGet("{guid}")]
@@ -42,73 +45,60 @@ public class AccountController : GenericAllController<Account>
         {
             return NotFound("Id Not Found");
         }
-        return Ok(result);
+        return Ok((AccountDto)result);
     }
 
     [HttpPost]
-    public IActionResult Create(Account account)
+    public IActionResult Create(CreateAccountDto accountDto)
     {
-        var result = _accountRepository.Create(account);
+        var result = _accountRepository.Create(accountDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");
         }
 
-        return Ok(result);
+        return Ok((AccountDto)result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, [FromBody] Account account)
+    [HttpPut]
+    public IActionResult Update(AccountDto accountDto)
     {
-        var existingAccount = _accountRepository.GetByGuid(guid);
-
-        if (existingAccount == null)
+        var entity = _accountRepository.GetByGuid(accountDto.Guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        Account toUpdate = accountDto;
+        toUpdate.CreatedDate = entity.CreatedDate;
 
-        existingAccount.Password = account.Password;
-        existingAccount.Otp = account.Otp; //update code dengan code dari inputan
-        existingAccount.IsUsed = account.IsUsed;
-        existingAccount.ExpiredTime = account.ExpiredTime;
-
-        var updatedAccount = _accountRepository.Update(existingAccount);
-
-        if (updatedAccount == null)
+        var result = _accountRepository.Update(toUpdate);
+        if (!result)
         {
             return BadRequest("Failed to update data");
         }
 
-        return Ok(updatedAccount);
+        return Ok("Data Updated");
+
     }
-
-
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        // Periksa apakah universitas dengan ID yang diberikan ada dalam database.
-        var existingAccount = _accountRepository.GetByGuid(guid);
-
-        if (existingAccount == null)
+        var entity = _accountRepository.GetByGuid(guid);
+        if (entity is null)
         {
-            return NotFound("Data not found");
+            return NotFound("Id Not Found");
         }
 
-        var deletedAccount = _accountRepository.Delete(existingAccount);
-
-        if (deletedAccount == null)
+        var result = _accountRepository.Delete(entity);
+        if (!result)
         {
             return BadRequest("Failed to delete data");
         }
 
-        return Ok(deletedAccount);
-    }*/
+        return Ok("Data Deleted");
+    }
 
 
 }

@@ -2,67 +2,73 @@
 using API.Data;
 using API.Models;
 
-namespace API.Repositories
+namespace API.Repositories;
+
+public class UniversityRepository : AllRepositoryGeneric<University>, IUniversityRepository
+
 {
-    public class UniversityRepository : IUniversityRepository
 
+    public UniversityRepository(BookingManagementDBContext context) : base(context) { }
+
+
+
+
+    /*private readonly BookingManagementDBContext _context;
+
+    public UniversityRepository(BookingManagementDBContext context)
     {
-        private readonly BookingManagementDBContext _context;
+        _context = context;
+    }
+    public IEnumerable<University> GetAll()
+    {
+        return _context.Set<University>().ToList();
+    }
 
-        public UniversityRepository(BookingManagementDBContext context)
-        {
-            _context = context;
-        }
-        public IEnumerable<University> GetAll()
-        {
-            return _context.Set<University>().ToList();
-        }
+    public University? GetByGuid(Guid guid)
+    {
+        return _context.Set<University>().Find(guid);
+    }
 
-        public University? GetByGuid(Guid guid)
+    public University? Create(University university)
+    {
+        try
         {
-            return _context.Set<University>().Find(guid);
+            _context.Set<University>().Add(university);
+            _context.SaveChanges();
+            return university;
         }
-
-        public University? Create(University university)
+        catch
         {
-            try
-            {
-                _context.Set<University>().Add(university);
-                _context.SaveChanges();
-                return university;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public bool Update(University university)
-        {
-            try
-            {
-                _context.Set<University>().Update(university);
-                _context.SaveChanges();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public bool Delete(University university)
-        {
-            try
-            {
-                _context.Set<University>().Remove(university);
-                _context.SaveChanges();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return null;
         }
     }
+
+    public bool Update(University university)
+    {
+        try
+        {
+            _context.Set<University>().Update(university);
+            _context.SaveChanges();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public bool Delete(University university)
+    {
+        try
+        {
+            _context.Set<University>().Remove(university);
+            _context.SaveChanges();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}*/
 }

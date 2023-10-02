@@ -11,23 +11,26 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<BookingManagementDBContext>(option  => option.UseSqlServer(connectionString));
 
 //add repositories to the container / GENERIC
-builder.Services.AddScoped<IAllRepository<Account>, AllRepositoryGeneric<Account>>();
-builder.Services.AddScoped<IAllRepository<AccountRole>, AllRepositoryGeneric<AccountRole>>();
-builder.Services.AddScoped<IAllRepository<Booking>, AllRepositoryGeneric<Booking>>();
-/*builder.Services.AddScoped<IAllRepository<Education>, AllRepositoryGeneric<Education>>();
-builder.Services.AddScoped<IAllRepository<Employee>, AllRepositoryGeneric<Employee>>();*/
-builder.Services.AddScoped<IAllRepository<Role>, AllRepositoryGeneric<Role>>();
-builder.Services.AddScoped<IAllRepository<Room>, AllRepositoryGeneric<Room>>();
-//builder.Services.AddScoped<IAllRepository<University>, AllRepositoryGeneric<University>>();
+/*builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
+builder.Services.AddScoped<IGenericRepository<Account>, AllRepositoryGeneric<Account>>();
+builder.Services.AddScoped<IGenericRepository<AccountRole>, AllRepositoryGeneric<AccountRole>>();
+builder.Services.AddScoped<IGenericRepository<Booking>, AllRepositoryGeneric<Booking>>();
+builder.Services.AddScoped<IAllRepository<Education>, AllRepositoryGeneric<Education>>();
+builder.Services.AddScoped<IGenericRepository<Employee>, AllRepositoryGeneric<Employee>>();
+builder.Services.AddScoped<IGenericRepository<Role>, AllRepositoryGeneric<Role>>();
+builder.Services.AddScoped<IGenericRepository<Room>, AllRepositoryGeneric<Room>>();
+builder.Services.AddScoped<IAllRepository<University>, AllRepositoryGeneric<University>>();*/
+
+
 
 //add repositories to the container / NON GENERIC
-/*builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountRoleRepository, AccountRoleRepository>();
-builder.Services.AddScoped<IBookingRepository, BookingRepository>();*/
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IEducationRepository, EducationRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-/*builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IRoomRepository, RoomRepository>();*/
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
 
 

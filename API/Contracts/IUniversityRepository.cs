@@ -2,14 +2,8 @@
 
 namespace API.Contracts
 {
-    public interface IUniversityRepository
+    public interface IUniversityRepository : IGenericRepository<University>
     {
-        IEnumerable<University> GetAll();
-        University? Create(University university);
-        University? GetByGuid(Guid guid);
-        bool Update(University university);
-        bool Delete(University university);
-
-
+       
     }
 }

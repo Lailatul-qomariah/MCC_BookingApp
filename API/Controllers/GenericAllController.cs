@@ -9,10 +9,10 @@ namespace API.Controllers;
 //controller generic dan inheritance dengan controller base dan hanya menerima tipe generic berupa class
 public class GenericAllController<T> : ControllerBase where T : class
 {
-    private readonly IAllRepository<T> _repositoryT; //akses interface IAllrepository
+    private readonly IGenericRepository<T> _repositoryT; //akses interface IAllrepository
 
     //constructor or dependency injection dengan parameter yang merupakan instance dari IAllRepository<T> 
-    public GenericAllController(IAllRepository<T> repositoryT) 
+    public GenericAllController(IGenericRepository<T> repositoryT) 
     {
         _repositoryT = repositoryT;
     }
@@ -53,7 +53,7 @@ public class GenericAllController<T> : ControllerBase where T : class
         return Ok(result);
     }
 
-    [HttpPut("{guid}")]
+    [HttpPut]
     public IActionResult Update(Guid guid, [FromBody] T values) // [FromBody] digunakan untk menerima data yang akan digunakan untuk memperbarui model 
     {
         var existingRepository = _repositoryT.GetByGuid(guid); // get data dari contract/model yg akan diupdate by id
