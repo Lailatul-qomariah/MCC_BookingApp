@@ -15,7 +15,7 @@ public class BookingController : GenericAllController<Booking>
     }
 
     //Non Generic
-   /* private readonly IBookingRepository _bookingRepository;
+    private readonly IBookingRepository _bookingRepository;
 
     public BookingController(IBookingRepository bookingRepository)
     {
@@ -72,8 +72,12 @@ public class BookingController : GenericAllController<Booking>
             return BadRequest(ModelState);
         }
 
-        //booking
-        existingBooking.Remarks = booking.Remarks; //update code dengan code dari inputan
+        existingBooking.StartDate = booking.StartDate;
+        existingBooking.EndDate = booking.EndDate;
+        existingBooking.Status = booking.Status;
+        existingBooking.Remarks = booking.Remarks; //update value dengan value dari inputan
+        existingBooking.RoomGuid = booking.RoomGuid;
+        existingBooking.EmployeeGuid = booking.EmployeeGuid;
 
         var updatedBooking = _bookingRepository.Update(existingBooking);
 
@@ -106,7 +110,7 @@ public class BookingController : GenericAllController<Booking>
         }
 
         return Ok(deletedBooking);
-    }*/
+    }
 
 
 }

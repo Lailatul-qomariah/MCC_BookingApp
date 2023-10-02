@@ -74,7 +74,6 @@ public class RoleController : GenericAllController<Role>
             return BadRequest(ModelState);
         }
 
-        existingRole.Code = university.Code; //update code dengan code dari inputan
         existingRole.Name = university.Name; //update name dengan name baru yang ada di inputan
 
         var updatedRole = _roleRepository.Update(existingRole);

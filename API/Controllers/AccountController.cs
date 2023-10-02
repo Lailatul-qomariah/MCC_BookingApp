@@ -15,7 +15,7 @@ public class AccountController : GenericAllController<Account>
     }
 
 
-   /* private readonly IAccountRepository _accountRepository;
+    /*private readonly IAccountRepository _accountRepository;
 
     public AccountController(IAccountRepository accountRepository)
     {
@@ -72,8 +72,10 @@ public class AccountController : GenericAllController<Account>
             return BadRequest(ModelState);
         }
 
-        //booking
+        existingAccount.Password = account.Password;
         existingAccount.Otp = account.Otp; //update code dengan code dari inputan
+        existingAccount.IsUsed = account.IsUsed;
+        existingAccount.ExpiredTime = account.ExpiredTime;
 
         var updatedAccount = _accountRepository.Update(existingAccount);
 
