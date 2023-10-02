@@ -6,17 +6,17 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class RoomController : GenericAllController<Room>
+public class RoomController : ControllerBase
 {
-
-    public RoomController(IAllRepository<Room> repositoryT) : base(repositoryT)
+    //GENERIC
+    /*public RoomController(IAllRepository<Room> repositoryT) : base(repositoryT)
     {
 
-    }
+    }*/
 
 
 
-  /*  //Non Generic
+    /*//Non Generic
     private readonly IRoomRepository _roomRepository;
 
     public RoomController(IRoomRepository roomRepository)
@@ -66,7 +66,7 @@ public class RoomController : GenericAllController<Room>
 
         if (existingRoom == null)
         {
-            return NotFound("University not found");
+            return NotFound("Data not found");
         }
 
         if (!ModelState.IsValid)
@@ -75,14 +75,14 @@ public class RoomController : GenericAllController<Room>
         }
 
         //example
-        existingRoom.Code = university.Code; //update code dengan code dari inputan
-        existingRoom.Name = university.Name; //update name dengan name baru yang ada di inputan
-
+        existingRoom.Name = room.Name; //update name dengan name baru yang ada di inputan
+        existingRoom.Floor = room.Floor;
+        existingRoom.Capacity = room.Capacity;
         var updatedRoom = _roomRepository.Update(existingRoom);
 
         if (updatedRoom == null)
         {
-            return BadRequest("Failed to update Room");
+            return BadRequest("Failed to update data");
         }
 
         return Ok(updatedRoom);
@@ -98,14 +98,14 @@ public class RoomController : GenericAllController<Room>
 
         if (existingRoom == null)
         {
-            return NotFound("Room not found");
+            return NotFound("Data not found");
         }
 
         var deletedRoom = _roomRepository.Delete(existingRoom);
 
         if (deletedRoom == null)
         {
-            return BadRequest("Failed to delete university");
+            return BadRequest("Failed to delete data");
         }
 
         return Ok(deletedRoom);

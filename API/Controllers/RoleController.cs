@@ -8,7 +8,7 @@ namespace API.Controllers;
 
 public class RoleController : GenericAllController<Role>
 {
-
+    //GENERIC
     public RoleController(IAllRepository<Role> repositoryT) : base(repositoryT)
     {
         
@@ -66,7 +66,7 @@ public class RoleController : GenericAllController<Role>
 
         if (existingRole == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         if (!ModelState.IsValid)
@@ -81,7 +81,7 @@ public class RoleController : GenericAllController<Role>
 
         if (updatedRole == null)
         {
-            return BadRequest("Failed to update university");
+            return BadRequest("Failed to update data");
         }
 
         return Ok(updatedRole);
@@ -97,14 +97,14 @@ public class RoleController : GenericAllController<Role>
 
         if (existingRole == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         var deletedRole = _roleRepository.Delete(existingRole);
 
         if (deletedRole == null)
         {
-            return BadRequest("Failed to delete Role");
+            return BadRequest("Failed to delete data");
         }
 
         return Ok(deletedRole);

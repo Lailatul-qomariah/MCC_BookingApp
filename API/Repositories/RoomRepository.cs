@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories
 {
-    public class RoomRepository : IAllRepository<Room>
+    public class RoomRepository : IRoomRepository
 
     {
         private readonly BookingManagementDBContext _context;

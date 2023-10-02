@@ -6,15 +6,15 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class EducationController : GenericAllController<Education>
+public class EducationController : ControllerBase
 {
+    //GENERIC
+    /* public EducationController(IAllRepository<Education> repositoryT) : base(repositoryT)
+     {
 
-    public EducationController(IAllRepository<Education> repositoryT) : base(repositoryT)
-    {
-        
-    }
+     }*/
 
-   /* //Non Generic
+    //Non Generic
     private readonly IEducationRepository _educationRepository;
 
     public EducationController(IEducationRepository educationRepository)
@@ -64,7 +64,7 @@ public class EducationController : GenericAllController<Education>
 
         if (existingEducation == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         if (!ModelState.IsValid)
@@ -73,13 +73,16 @@ public class EducationController : GenericAllController<Education>
         }
 
         //education
-        existingEducation.BirthDate = education.BirthDate; //update code dengan code dari inputan
+        existingEducation.Major = education.Major; //update code dengan code dari inputan
+        existingEducation.Degree = education.Degree;
+        existingEducation.Gpa = education.Gpa;
+        existingEducation.UniversityGuid = education.UniversityGuid;
 
         var updatedEducation = _educationRepository.Update(existingEducation);
 
         if (updatedEducation == null)
         {
-            return BadRequest("Failed to update university");
+            return BadRequest("Failed to update data");
         }
 
         return Ok(updatedEducation);
@@ -95,18 +98,18 @@ public class EducationController : GenericAllController<Education>
 
         if (existingEducation == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         var deletedEducation = _educationRepository.Delete(existingEducation);
 
         if (deletedEducation == null)
         {
-            return BadRequest("Failed to delete Role");
+            return BadRequest("Failed to delete data");
         }
 
         return Ok(deletedEducation);
-    }*/
+    }
 
 
 }

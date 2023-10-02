@@ -95,7 +95,7 @@ public class AccountRoleController : GenericAllController<AccountRole>
 
         if (existingBooking == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         var deletedBooking = _bookingRepository.Delete(existingBooking);

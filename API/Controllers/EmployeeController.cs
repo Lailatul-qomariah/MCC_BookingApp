@@ -6,13 +6,13 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class EmployeeController : GenericAllController<Employee>
+public class EmployeeController : ControllerBase
 {
-
-    public EmployeeController(IAllRepository<Employee> repositoryT) : base(repositoryT)
+    //GENERIC
+   /* public EmployeeController(IAllRepository<Employee> repositoryT) : base(repositoryT)
     {
         
-    }
+    }*/
 
     //Non Generic
     private readonly IEmployeeRepository _employeeRepository;
@@ -64,21 +64,27 @@ public class EmployeeController : GenericAllController<Employee>
 
         if (existingEmployee == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-
+        existingEmployee.Nik = employee.Nik;
+        existingEmployee.FirstName = employee.FirstName;
+        existingEmployee.LastName = employee.LastName;
         existingEmployee.BirthDate = employee.BirthDate; //update code dengan code dari inputan
-
+        existingEmployee.Gender = employee.Gender;
+        existingEmployee.HiringDate = employee.HiringDate;
+        existingEmployee.Email = employee.Email;
+        existingEmployee.PhoneNumber = employee.PhoneNumber;
+        
         var updatedRole = _employeeRepository.Update(existingEmployee);
 
         if (updatedRole == null)
         {
-            return BadRequest("Failed to update university");
+            return BadRequest("Failed to update data");
         }
 
         return Ok(updatedRole);
@@ -94,14 +100,14 @@ public class EmployeeController : GenericAllController<Employee>
 
         if (existingEmployee == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         var deletedEmployee = _employeeRepository.Delete(existingEmployee);
 
         if (deletedEmployee == null)
         {
-            return BadRequest("Failed to delete Role");
+            return BadRequest("Failed to delete data");
         }
 
         return Ok(deletedEmployee);

@@ -15,7 +15,7 @@ public class BookingController : GenericAllController<Booking>
     }
 
     //Non Generic
-    private readonly IBookingRepository _bookingRepository;
+   /* private readonly IBookingRepository _bookingRepository;
 
     public BookingController(IBookingRepository bookingRepository)
     {
@@ -95,7 +95,7 @@ public class BookingController : GenericAllController<Booking>
 
         if (existingBooking == null)
         {
-            return NotFound("Role not found");
+            return NotFound("Data not found");
         }
 
         var deletedBooking = _bookingRepository.Delete(existingBooking);
@@ -106,7 +106,7 @@ public class BookingController : GenericAllController<Booking>
         }
 
         return Ok(deletedBooking);
-    }
+    }*/
 
 
 }
