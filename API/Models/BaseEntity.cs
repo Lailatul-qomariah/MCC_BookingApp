@@ -3,8 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models;
 
-public abstract class BaseEntity
+public abstract class BaseEntity 
 {
+    //class abstract agar bisa diimplementasikan disemua model yang membutuhkan properti dibawah ini
     [Key, Column("guid")]
     public Guid Guid { get; set; }
     

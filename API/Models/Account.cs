@@ -4,7 +4,7 @@ namespace API.Models;
 
 [Table("tb_m_accounts")]
 
-public class Account : BaseEntity
+public class Account : BaseEntity //implement dengan class abstract BaseEntity
 {
     [Column("password", TypeName = "nvarchar(max)")]
     public string Password { get; set; }

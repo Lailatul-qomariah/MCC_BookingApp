@@ -89,7 +89,7 @@ public class AccountRoleController : ControllerBase
         //convert data DTO dari inputan user menjadi objek AccountRole
         AccountRole toUpdate = accountRoleDto;
         //menyimpan createdate yg lama 
-        toUpdate.CreatedDate = existingEmployee.CreatedDate;
+        toUpdate.CreatedDate = entity.CreatedDate;
 
         //update AccountRole dalam repository
         var result = _accountRoleRepository.Update(toUpdate);
@@ -101,8 +101,6 @@ public class AccountRoleController : ControllerBase
         // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
         return Ok("Data Updated");
     }
-
-
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
