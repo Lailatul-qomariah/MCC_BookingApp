@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using API.Utilities.Enums;
 
 namespace API.DTOs.Employees
 {
@@ -8,9 +9,9 @@ namespace API.DTOs.Employees
         public Guid Guid { get; set; }
         public string Nik { get; set; }
         public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
         public DateTime BirthDate { get; set; }
-        public int Gender { get; set; }
+        public GenderLevels Gender { get; set; }
         public DateTime HiringDate { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
@@ -42,14 +43,14 @@ namespace API.DTOs.Employees
             return new Employee
             {
                 Guid = employeeDto.Guid,
-                Nik = employeeDto.Nik,
                 FirstName = employeeDto.FirstName,
                 LastName = employeeDto.LastName,
                 BirthDate = employeeDto.BirthDate,
                 Gender = employeeDto.Gender,
                 HiringDate = employeeDto.HiringDate,
                 Email = employeeDto.Email,
-                PhoneNumber = employeeDto.PhoneNumber
+                PhoneNumber = employeeDto.PhoneNumber,
+                ModifiedDate = DateTime.Now
             };
         }
     }
