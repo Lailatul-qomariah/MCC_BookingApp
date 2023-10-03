@@ -5,7 +5,7 @@ namespace API.Models;
 
 
 [Table("tb_tr_bookings")]
-public class Booking : BaseEntity
+public class Booking : BaseEntity //implement dengan class abstract BaseEntity
 {
     [Column("start_date")]
     public DateTime StartDate { get; set; }
@@ -24,6 +24,8 @@ public class Booking : BaseEntity
 
     [Column("employee_guid")]
     public Guid EmployeeGuid { get; set; }
+
+    //employee dan room cardinalitunya one
     public Employee? Employee { get; set; }
 
     public Room? Room { get; set; }

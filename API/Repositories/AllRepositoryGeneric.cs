@@ -1,7 +1,6 @@
 ﻿using API.Contracts;
 using API.Data;
-using API.Models;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace API.Repositories;
 //repository generic dan inheritance dengan Interface genertic dan hanya menerima tipe generic berupa class

@@ -3,7 +3,7 @@
 namespace API.Models;
 
 [Table("tb_m_educations")]
-public class Education : BaseEntity
+public class Education : BaseEntity //implement dengan class abstract BaseEntity
 {
     [Column("major", TypeName = "nvarchar(100)")]
     public string Major { get; set; }

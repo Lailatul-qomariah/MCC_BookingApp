@@ -8,7 +8,19 @@ namespace API.Repositories;
 public class EmployeeRepository : AllRepositoryGeneric<Employee>, IEmployeeRepository
 //inharitance pada genericrepository dan interface repository
 {
-    //injection dbcontect
-    public EmployeeRepository(BookingManagementDBContext context) : base(context) { }
 
+    //injection dbcontect
+    private readonly BookingManagementDBContext _context;
+    public EmployeeRepository(BookingManagementDBContext context) : base(context)
+    {
+        _context = context;
+    }
+
+    public Employee GetLastNik()
+    {
+        return _context.Employees
+            .OrderByDescending(e => e.Nik)
+            .FirstOrDefault();
+
+    }
 }
