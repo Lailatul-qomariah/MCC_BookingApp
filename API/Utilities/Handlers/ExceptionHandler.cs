@@ -1,7 +1,9 @@
-﻿namespace API.Utilities.Handlers
+﻿using System;
+
+namespace API.Utilities.Handlers;
+
+public class ExceptionHandler : Exception
+ //Representasi penanganan exception yang dapat di custom dengan pesan tertentu.
 {
-    public class ExceptionHandler : Exception
-    {
-        public ExceptionHandler(string message) : base(message) { }
-    }
+    public ExceptionHandler(string message) : base(message) { }
 }

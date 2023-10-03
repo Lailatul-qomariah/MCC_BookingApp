@@ -1,7 +1,9 @@
 ﻿using API.Contracts;
 using API.DTOs.Bookings;
 using API.Models;
+using API.Utilities.Handlers;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace API.Controllers;
 [ApiController]
@@ -9,13 +11,6 @@ namespace API.Controllers;
 
 public class BookingController : ControllerBase
 {
-    //inheritance ke genericAllController
-    /* public BookingController(IGenericRepository<Booking> repositoryT) : base(repositoryT)
-     {
-
-     }*/
-
-    //Non Generic
     private readonly IBookingRepository _bookingRepository;
 
     //contructor dan dependency injection untuk menyimpan instance dari IBookingRepository
@@ -31,14 +26,20 @@ public class BookingController : ControllerBase
         var result = _bookingRepository.GetAll();
         if (!result.Any()) //cek apakah data ditemukan
         {
-            return NotFound("Data Not Found"); //return NotFound jika data tidak ditemukan 
+            //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
         }
 
         // mengubah data Booking ke dalam format DTO secara explicit.
         var data = result.Select(x => (BookingDto)x);
 
         //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
-        return Ok(data);
+        return Ok(new ResponseOKHandler<IEnumerable<BookingDto>>(data));
 
     }
 
@@ -50,58 +51,86 @@ public class BookingController : ControllerBase
         // cek apakah data result kosong atau apakah data berdasarkan guid ditemukan
         if (result is null)
         {
-            return NotFound("Id Not Found"); //return Notfound jika data tidak ditemukan
+            //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
         }
 
-        //return HTTP OK dengan kode status 200 untuk success
-        //return data Booking berdasarkan format DTO secara explicit
-        return Ok((BookingDto)result);
+        //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
+        return Ok(new ResponseOKHandler<BookingDto>((BookingDto)result));
     }
 
-   
     [HttpPost] //menangani request create data ke endpoint /Booking
     //parameter berupa objek menggunakan format DTO agar crete data disesuaikan dengan format DTO
     public IActionResult Create(CreateBookingDto bookingDto)
     {
-        // create data Booking menggunakan format data DTO implisit
-        var result = _bookingRepository.Create(bookingDto);
-        if (result is null) //cek apakah create data gagal atau result nya kosong
+        try
         {
-            // Mengembalikan pesan BadRequest jika gagal create data Booking
-            return BadRequest("Failed to create data");
-        }
+            // create data Booking menggunakan format data DTO implisit
+            var result = _bookingRepository.Create(bookingDto);
 
-        //return HTTP Ok dengan kode status 200 untuk success
-        //return data Booking yang baru dibuat berdasarkan format DTO secara explicit
-        return Ok((BookingDto)result);
+            //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
+            return Ok(new ResponseOKHandler<BookingDto>((BookingDto)result));
+
+        }
+        catch (Exception ex)
+        {
+            // return dengan kode status 500 dan menampilkan pesan exception 
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
+        }
     }
 
     [HttpPut] //menangani request update ke endpoint /Booking
     //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
     public IActionResult Update(BookingDto bookingDto)
     {
-        //get data by guid dan menggunakan format DTO 
-        var entity = _bookingRepository.GetByGuid(bookingDto.Guid);
-        if (entity is null) //cek apakah data berdasarkan guid tersedia 
+        try
         {
-            //return Not Found jika data tidak ditemukan
-            return NotFound("Id Not Found");
-        }
-        //convert data DTO dari inputan user menjadi objek Booking
-        Booking toUpdate = bookingDto;
-        //menyimpan createdate yg lama 
-        toUpdate.CreatedDate = entity.CreatedDate;
+            //get data by guid dan menggunakan format DTO 
+            var entity = _bookingRepository.GetByGuid(bookingDto.Guid);
+            if (entity is null) //cek apakah data berdasarkan guid tersedia 
+            {
+                //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
+                return NotFound(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found"
+                });
+            }
+            //convert data DTO dari inputan user menjadi objek Booking
+            Booking toUpdate = bookingDto;
+            //menyimpan createdate yg lama 
+            toUpdate.CreatedDate = entity.CreatedDate;
 
-        //update Booking dalam repository
-        var result = _bookingRepository.Update(toUpdate);
-        if (!result) //cek apakah update data gagal
+            //update Booking dalam repository
+            _bookingRepository.Update(toUpdate);
+
+            // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
+            return Ok(new ResponseOKHandler<string>("Data Updated"));
+        }
+        catch (Exception ex)
         {
-            // return pesan BadRequest jika gagal update data
-            return BadRequest("Failed to update data");
+            // return dengan kode status 500 dan menampilkan pesan exception 
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to Update data",
+                Error = ex.Message
+            });
         }
-        // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
-        return Ok("Data Updated");
-
+       
     }
 
 
@@ -110,27 +139,42 @@ public class BookingController : ControllerBase
 
     public IActionResult Delete(Guid guid)
     {
-        // Periksa apakah Booking dengan guid yang diberikan ada dalam database.
-        var entity = _bookingRepository.GetByGuid(guid);
-
-        // cek apakah entity (get data by guid) kosong
-        if (entity == null)
+        try
         {
-            // Mengembalikan pesan NotFound jika Booking tidak ditemukan
-            return NotFound("Data not found");
+            // get data booking by guid
+            var entity = _bookingRepository.GetByGuid(guid);
+
+            // cek apakah entity (get data by guid) kosong
+            if (entity == null)
+            {
+                //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
+                return NotFound(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found"
+                });
+            }
+
+            //delete Booking dari repository
+           _bookingRepository.Delete(entity);
+
+            // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
+            return Ok(new ResponseOKHandler<string>("Data Deleted"));
+        }
+        catch (Exception ex)
+        {
+            // return dengan kode status 500 dan menampilkan pesan exception 
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to Delete data",
+                Error = ex.Message
+            });
         }
 
-        //delete Booking dari repository
-        var deleted = _bookingRepository.Delete(entity);
 
-        if (deleted == null) //cek apakah data gagal di delete
-        {
-            //return pesan BadRequest jika gagal menghapus Booking
-            return BadRequest("Failed to delete data");
-        }
-
-        // return HTTP OK dan "true" dengan kode status 200 dan untuk sukses delete.
-        return Ok("Data Deleted");
     }
 
 }

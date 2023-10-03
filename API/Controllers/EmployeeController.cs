@@ -21,7 +21,7 @@ public class EmployeeController : ControllerBase
         _employeeRepository = employeeRepository;
     }
 
-[HttpGet] //menangani request get all data endpoint /Employee
+    [HttpGet] //menangani request get all data endpoint /Employee
     public IActionResult GetAll()
     {
         // Mendapatkan semua data Employee dari _employeeRepository.
@@ -62,16 +62,16 @@ public class EmployeeController : ControllerBase
         return Ok(new ResponseOKHandler<EmployeeDto>((EmployeeDto)result));
     }
 
-    [HttpPost] 
+    [HttpPost]
     public IActionResult Create(CreateEmployeeDto createEmpDto)
     {
         try
         {
             Employee toCreate = createEmpDto;
             //set Nik menggunakan generate nik
-            toCreate.Nik = GenerateHandler.GenerateNik(_employeeRepository.GetLastNik()); 
+            toCreate.Nik = GenerateHandler.GenerateNik(_employeeRepository.GetLastNik());
             var result = _employeeRepository.Create(toCreate);
-            
+
             //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
             return Ok(new ResponseOKHandler<EmployeeDto>((EmployeeDto)result));
         }
@@ -85,10 +85,7 @@ public class EmployeeController : ControllerBase
                 Message = "Failed to create data",
                 Error = ex.Message
             });
-            //return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler<CreateEmployeeDto>(ex.Message));
-
-            //return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler <EmployeeDto>(ex.Message));
-
+           
         }
 
     }
@@ -120,7 +117,7 @@ public class EmployeeController : ControllerBase
             toUpdate.CreatedDate = existingEmployee.CreatedDate;
 
             _employeeRepository.Update(toUpdate);
-            
+
             // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
             return Ok(new ResponseOKHandler<string>("Data Updated"));
         }
