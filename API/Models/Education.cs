@@ -16,6 +16,8 @@ public class Education : BaseEntity
     
     [Column("university_guid")]
     public Guid UniversityGuid { get; set; }
+
+    //cardinalitas dari university dan employee adalah one
     public University? University {  get; set; }
 
     public Employee? Employee { get; set; }

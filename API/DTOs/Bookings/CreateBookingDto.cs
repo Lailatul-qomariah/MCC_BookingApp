@@ -4,7 +4,9 @@ using API.Models;
 namespace API.DTOs.Bookings
 {
     public class CreateBookingDto
+    // Representasi DTO untuk membuat entitas Booking
     {
+        //properti Booking yang akan dibuat
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Status { get; set; }
@@ -12,8 +14,10 @@ namespace API.DTOs.Bookings
         public Guid RoomGuid { get; set; }
         public Guid EmployeeGuid { get; set; }
 
+        // Operator implisit untuk mengubah objek CreateBookingDto menjadi objek Booking
         public static implicit operator Booking(CreateBookingDto bookingDto)
         {
+            // Inisiasi objek Booking dengan data dari objek CreateBookingDto
             return new Booking
             {
                 StartDate = bookingDto.StartDate,

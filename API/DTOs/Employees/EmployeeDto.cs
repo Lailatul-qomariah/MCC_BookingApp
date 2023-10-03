@@ -3,6 +3,7 @@
 namespace API.DTOs.Employees
 {
     public class EmployeeDto
+    //representasi DTO untuk model atau entitaas Employee
     {
         public Guid Guid { get; set; }
         public string Nik { get; set; }
@@ -14,10 +15,11 @@ namespace API.DTOs.Employees
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
 
-        // Konversi Eksplisit (Explicit Conversion):
-        // Metode ini akan mengonversi EmployeeDto ke Employee secara eksplisit jika diperlukan.
+        // Operator eksplisit untuk convert objek Employee ke EmployeeDto
+        //digunakan atau dipanggil pada method GetAll, GetByGuid dan Create
         public static explicit operator EmployeeDto(Employee employee)
         {
+            // Inisiasi objek EmployeeDto dengan data dari objek Employee
             return new EmployeeDto
             {
                 Guid = employee.Guid,
@@ -32,10 +34,11 @@ namespace API.DTOs.Employees
             };
         }
 
-        // Konversi Implisit (Implicit Conversion):
-        // Metode ini akan mengonversi EmployeeDto ke Employee secara implisit jika diperlukan.
+        // Operator implisit untuk convert objek EmployeeDto ke objek Employee
+        //digunakan pada saat menggunakan method Update
         public static implicit operator Employee(EmployeeDto employeeDto)
         {
+            // Inisiasi objek Employee dengan data dari objek EmployeeDto
             return new Employee
             {
                 Guid = employeeDto.Guid,

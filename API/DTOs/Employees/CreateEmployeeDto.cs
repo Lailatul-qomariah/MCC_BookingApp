@@ -3,7 +3,9 @@
 namespace API.DTOs.Employees
 {
     public class CreateEmployeeDto
+    // Representasi DTO untuk membuat entitas Employee
     {
+        //properti Employee yang akan dibuat
         public string Nik { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -13,8 +15,7 @@ namespace API.DTOs.Employees
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
 
-        // Konversi Implisit (Implicit Conversion):
-        // Metode ini akan mengonversi EmployeeDto ke Employee secara implisit jika diperlukan.
+        // Operator implisit untuk mengubah objek CreateEmployeeDto menjadi objek Employee
         public static implicit operator Employee(CreateEmployeeDto createEmployeeDto)
         {
             return new Employee

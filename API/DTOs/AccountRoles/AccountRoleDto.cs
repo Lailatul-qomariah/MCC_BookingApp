@@ -4,14 +4,16 @@ namespace API.DTOs.AccountRoles
 {
     public class AccountRoleDto
     {
+        //representasi DTO untuk model atau entitaas AccountRole
         public Guid Guid { get; set; }
         public Guid AccountGuid { get; set; }
         public Guid RoleGuid { get; set; }
 
-        // Konversi Eksplisit (Explicit Conversion):
-        // Metode ini akan mengonversi EmployeeDto ke Employee secara eksplisit jika diperlukan.
+        // Operator eksplisit untuk convert objek AccountRole ke AccountRoleDto
+        //digunakan atau dipanggil pada method GetAll, GetByGuid dan Create di controller
         public static explicit operator AccountRoleDto(AccountRole accRoleDto)
         {
+            // Inisiasi objek UniversityDto dengan data dari objek AccountRole
             return new AccountRoleDto
             {
                 Guid = accRoleDto.Guid,
@@ -20,10 +22,11 @@ namespace API.DTOs.AccountRoles
             };
         }
 
-        // Konversi Implisit (Implicit Conversion):
-        // Metode ini akan mengonversi EmployeeDto ke Employee secara implisit jika diperlukan.
+        // Operator implisit untuk convert objek AccountRoleDto ke AccountRole
+        //digunakan pada saat menggunakan method Update di controller
         public static implicit operator AccountRole(AccountRoleDto accRoleDto)
         {
+            // Inisiasi objek AccountRole dengan data dari objek AccountRoleDto
             return new AccountRole
             {
                 Guid = accRoleDto.Guid,

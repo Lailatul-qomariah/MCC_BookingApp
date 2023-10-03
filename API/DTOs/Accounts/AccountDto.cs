@@ -1,36 +1,42 @@
 ﻿using API.Models;
 
-namespace API.DTOs.Accounts
+namespace API.DTOs.Accounts;
+
+public class AccountDto
 {
-    public class AccountDto
+    //representasi DTO untuk model atau entitaas Account
+    public Guid Guid { get; set; }
+    public string Password { get; set; }
+    public int Otp { get; set; }
+    public bool IsUsed { get; set; }
+
+    // Operator eksplisit untuk convert objek Account ke AccountDto
+    //digunakan atau dipanggil pada method GetAll, GetByGuid dan Create di controller
+    public static explicit operator AccountDto(Account account)
     {
-        public Guid Guid { get; set; }
-        public string Password { get; set; }
-        public int Otp { get; set; }
-        public bool IsUsed { get; set; }
-
-        public static explicit operator AccountDto(Account account)
+        // Inisiasi objek UniversityDto dengan data dari objek Account
+        return new AccountDto
         {
-            return new AccountDto
-            {
-                Guid = account.Guid,
-                Password = account.Password,
-                Otp = account.Otp,
-                IsUsed = account.IsUsed,
+            Guid = account.Guid,
+            Password = account.Password,
+            Otp = account.Otp,
+            IsUsed = account.IsUsed,
 
-            };
-        }
+        };
+    }
 
-        public static implicit operator Account(AccountDto accountDto)
+    // Operator implisit untuk convert objek AccountDto ke Account
+    //digunakan pada saat menggunakan method Update di controller
+    public static implicit operator Account(AccountDto accountDto)
+    {
+        // Inisiasi objek Account dengan data dari objek AccountDto
+        return new Account
         {
-            return new Account
-            {
-                Guid = accountDto.Guid,
-                Password = accountDto.Password,
-                Otp = accountDto.Otp,
-                IsUsed = accountDto.IsUsed,
-                ModifiedDate = DateTime.Now
-            };
-        }
+            Guid = accountDto.Guid,
+            Password = accountDto.Password,
+            Otp = accountDto.Otp,
+            IsUsed = accountDto.IsUsed,
+            ModifiedDate = DateTime.Now
+        };
     }
 }
