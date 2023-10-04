@@ -37,8 +37,6 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
 
-
-
 builder.Services.AddControllers()
        .ConfigureApiBehaviorOptions(options =>
        {

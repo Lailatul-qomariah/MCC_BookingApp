@@ -86,7 +86,7 @@ public class RoleController : ControllerBase
                 Error = ex.Message
             });
         }
-        
+
     }
 
     [HttpPut]//menangani request update ke endpoint /Role
@@ -168,7 +168,7 @@ public class RoleController : ControllerBase
                 Error = ex.Message
             });
         }
-       
+
     }
 
 

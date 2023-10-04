@@ -116,7 +116,7 @@ public class UniversityController : ControllerBase
             //menyimpan createdate yg lama 
             toUpdate.CreatedDate = entity.CreatedDate;
             //update university dalam repository
-            _universityRepository.Update(toUpdate);
+           _universityRepository.Update(toUpdate);
 
             // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
             return Ok("Data Updated");

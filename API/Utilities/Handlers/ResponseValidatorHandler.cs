@@ -10,11 +10,12 @@ public class ResponseValidatorHandler
     public string Message { get; set; }
     public object Error { get; set; }
 
+    // constructor ini digunakan untuk menangani kasus khusus dengan message custom ketika operasi gagal
     public ResponseValidatorHandler(object error)
     {
-        Code = StatusCodes.Status400BadRequest;
-        Status = HttpStatusCode.BadRequest.ToString();
-        Message = "Validation Error";
-        Error = error;
+        Code = StatusCodes.Status400BadRequest; //status 400
+        Status = HttpStatusCode.BadRequest.ToString(); //badrequest
+        Message = "Validation Error"; //error mesage nya
+        Error = error; //berisi message dari validatornya
     }
 }

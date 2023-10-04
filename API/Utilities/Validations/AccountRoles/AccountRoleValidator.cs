@@ -7,11 +7,11 @@ public class AccountRoleValidator : AbstractValidator<AccountRoleDto>
 {
     public AccountRoleValidator() // validator untuk update Account role
     {
-        RuleFor(e => e.Guid) // validator untuk guid account role
+        RuleFor(a => a.Guid) // validator untuk guid account role
            .NotEmpty(); //tidak boleh kosong atau nol
-        RuleFor(e => e.AccountGuid) // validator untuk guid account guid
+        RuleFor(a => a.AccountGuid) // validator untuk guid account guid
             .NotEmpty(); //tidak boleh kosong atau nol
-        RuleFor(e => e.RoleGuid) // validator untuk role guid
+        RuleFor(a => a.RoleGuid) // validator untuk role guid
             .NotEmpty(); //tidak boleh kosong atau nol
     }
 }

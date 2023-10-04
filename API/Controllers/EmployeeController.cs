@@ -3,9 +3,7 @@ using API.DTOs.Employees;
 using API.Models;
 using API.Utilities.Handlers;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Net;
-using static System.Net.WebRequestMethods;
 
 namespace API.Controllers;
 [ApiController]
@@ -85,7 +83,8 @@ public class EmployeeController : ControllerBase
                 Message = "Failed to create data",
                 Error = ex.Message
             });
-           
+           // return StatusCode(StatusCodes.Status500InternalServerError, new ResponeErrorTry<"xcxcxc">(ex.Message));
+
         }
 
     }
@@ -116,7 +115,7 @@ public class EmployeeController : ControllerBase
             toUpdate.Nik = existingEmployee.Nik;
             toUpdate.CreatedDate = existingEmployee.CreatedDate;
 
-            _employeeRepository.Update(toUpdate);
+           _employeeRepository.Update(toUpdate);
 
             // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
             return Ok(new ResponseOKHandler<string>("Data Updated"));
