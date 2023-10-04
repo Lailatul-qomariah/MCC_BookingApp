@@ -9,6 +9,8 @@ public class AccountDto
     public string Password { get; set; }
     public int Otp { get; set; }
     public bool IsUsed { get; set; }
+    public DateTime ExpiredTime { get; set; }
+
 
     // Operator eksplisit untuk convert objek Account ke AccountDto
     //digunakan atau dipanggil pada method GetAll, GetByGuid dan Create di controller
@@ -20,7 +22,7 @@ public class AccountDto
             Guid = account.Guid,
             Password = account.Password,
             Otp = account.Otp,
-            IsUsed = account.IsUsed,
+            IsUsed = account.IsUsed
 
         };
     }
@@ -36,6 +38,7 @@ public class AccountDto
             Password = accountDto.Password,
             Otp = accountDto.Otp,
             IsUsed = accountDto.IsUsed,
+            ExpiredTime = accountDto.ExpiredTime,
             ModifiedDate = DateTime.Now
         };
     }

@@ -1,6 +1,6 @@
 ﻿using API.Contracts;
 using API.Data;
-
+using API.Utilities.Handlers;
 
 namespace API.Repositories;
 //repository generic dan inheritance dengan Interface genertic dan hanya menerima tipe generic berupa class
@@ -21,9 +21,10 @@ public class AllRepositoryGeneric<T> : IGenericRepository<T> where
             _context.Set<T>().Add(entity); //add data ke db berdasarkan inputan atau isi var entityT
             _context.SaveChanges(); //sama kayak commit
             return entity; //return data yg ditambahkan
-        }catch
+        }catch (Exception ex)
         {
-            return null;
+            throw new ExceptionHandler(ex.InnerException?.Message ?? ex.Message);
+
         }
     }
 
@@ -35,9 +36,9 @@ public class AllRepositoryGeneric<T> : IGenericRepository<T> where
             _context.SaveChanges(); //commit
             return true;
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            throw new ExceptionHandler(ex.InnerException?.Message ?? ex.Message);
         }
     }
 
@@ -61,9 +62,9 @@ public class AllRepositoryGeneric<T> : IGenericRepository<T> where
             _context.SaveChanges(); //commit
             return true;
         }
-        catch
+        catch (Exception ex) 
         {
-            return false;
+            throw new ExceptionHandler(ex.InnerException?.Message ?? ex.Message);
         }
     }
 }

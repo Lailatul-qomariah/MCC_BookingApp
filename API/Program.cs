@@ -1,8 +1,12 @@
 using API.Contracts;
 using API.Data;
-using API.Models;
 using API.Repositories;
+using API.Utilities.Handlers;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +38,24 @@ builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
 
 
+
+builder.Services.AddControllers()
+       .ConfigureApiBehaviorOptions(options =>
+       {
+           // Custom validation response
+           options.InvalidModelStateResponseFactory = context =>
+           {
+               var errors = context.ModelState.Values
+                                   .SelectMany(v => v.Errors)
+                                   .Select(v => v.ErrorMessage);
+               //manggil error handler 400 bad request
+               return new BadRequestObjectResult(new ResponseValidatorHandler(errors)); 
+           };
+       });
+
+//ada di dokumentasi, untuk custom errornya 
+builder.Services.AddFluentValidationAutoValidation()
+    .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
