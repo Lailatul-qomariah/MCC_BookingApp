@@ -2,10 +2,10 @@
 using FluentValidation;
 
 namespace API.Utilities.Validations.Employees;
-public class UpdateEmployeeValidator : AbstractValidator<EmployeeDto>
+public class EmployeeValidator : AbstractValidator<EmployeeDto>
 //inheritance ke AbstractValidator agar bisa akses method dll untuk validation di FluentValidation
 {
-    public UpdateEmployeeValidator() //validator untuk create employee
+    public EmployeeValidator() //validator untuk create employee
     {
         RuleFor(e => e.FirstName)   //validator untuk firstname
            .NotEmpty() //tidak boleh kosong atau nol
@@ -29,7 +29,9 @@ public class UpdateEmployeeValidator : AbstractValidator<EmployeeDto>
         RuleFor(e => e.PhoneNumber) //validator untuk properti phone number 
            .NotEmpty() //tidak boleh kosong atau nol
            .MinimumLength(10) //minimun panjang inputan 
-           .MaximumLength(20); //minimun panjang inputan 
+           .MaximumLength(20) //minimun panjang inputan
+           .Matches(@"^[0-9]+$") // menggunakan pattern untuk memeriksa input hanya angka
+           .WithMessage("Nomor telepon harus berisi hanya angka."); //
 
         RuleFor(e => e.Guid) //validator untuk properti guid 
             .NotEmpty(); //tidak boleh kosong atau nol

@@ -29,7 +29,9 @@ public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeDto>
         RuleFor(e => e.PhoneNumber) //validator untuk properti phone number 
            .NotEmpty() //tidak boleh kosong atau nol
            .MinimumLength(10) //minimun panjang inputan 
-           .MaximumLength(20); //minimun panjang inputan 
+           .MaximumLength(20) //minimun panjang inputan 
+           .Matches(@"^[0-9]+$") // menggunakan pattern untuk memeriksa input hanya angka
+           .WithMessage("Nomor telepon harus berisi hanya angka."); //
 
     }
 }
