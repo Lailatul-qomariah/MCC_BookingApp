@@ -25,6 +25,11 @@ builder.Services.AddScoped<IGenericRepository<Role>, AllRepositoryGeneric<Role>>
 builder.Services.AddScoped<IGenericRepository<Room>, AllRepositoryGeneric<Room>>();
 builder.Services.AddScoped<IAllRepository<University>, AllRepositoryGeneric<University>>();*/
 
+//ad email service to the conatainer
+builder.Services.AddTransient<IEmailHandler, EmailHandler>(_ => new EmailHandler(
+    builder.Configuration["SmtpService:Host"],
+    int.Parse(builder.Configuration["SmtpService:Port"]),
+    builder.Configuration["SmtpService:FromEmailAddress"]));
 
 
 //add repositories to the container / NON GENERIC

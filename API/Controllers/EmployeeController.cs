@@ -12,12 +12,20 @@ namespace API.Controllers;
 public class EmployeeController : ControllerBase
 {
     private readonly IEmployeeRepository _employeeRepository;
+    private readonly IEducationRepository _educationRepository;
+    private readonly IUniversityRepository _universityRepository;
 
     //contructor dan dependency injection untuk menyimpan instance dari IEmployeeRepository
-    public EmployeeController(IEmployeeRepository employeeRepository)
+    public EmployeeController(IEmployeeRepository employeeRepository, IEducationRepository educationRepository,
+        IUniversityRepository universityRepository)
     {
         _employeeRepository = employeeRepository;
+        _educationRepository = educationRepository;
+        _universityRepository = universityRepository;
     }
+
+   
+
 
     [HttpGet] //menangani request get all data endpoint /Employee
     public IActionResult GetAll()
@@ -59,6 +67,47 @@ public class EmployeeController : ControllerBase
         //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
         return Ok(new ResponseOKHandler<EmployeeDto>((EmployeeDto)result));
     }
+
+    [HttpGet("details")]
+    public IActionResult GetDetails() 
+    {
+        var employees = _employeeRepository.GetAll();
+        var education = _educationRepository.GetAll();
+        var universities = _universityRepository.GetAll();
+        
+        if (!(employees.Any() && education.Any() && universities.Any()))
+        {
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
+
+        }
+
+        var employeeDetails = from emp in employees
+                              join edu in education on emp.Guid equals edu.Guid
+                              join univ in universities on edu.UniversityGuid equals univ.Guid
+                              select new EmployeeDetailsDto
+                              {
+                                  Guid = emp.Guid,
+                                  Nik = emp.Nik,
+                                  FullName = string.Concat(emp.FirstName, " ", emp.LastName),
+                                  BirthDate = emp.BirthDate,
+                                  Gender = emp.Gender.ToString(),
+                                  HiringDate = emp.HiringDate,
+                                  Email = emp.Email,
+                                  PhoneNumber = emp.PhoneNumber,
+                                  Major = edu.Major,
+                                  Degree = edu.Degree,
+                                  Gpa = edu.Gpa,
+                                  University = univ.Name
+                              };
+                              
+        return Ok(new ResponseOKHandler<IEnumerable<EmployeeDetailsDto>>(employeeDetails));
+    }
+
 
     [HttpPost]
     public IActionResult Create(CreateEmployeeDto createEmpDto)
@@ -176,5 +225,6 @@ public class EmployeeController : ControllerBase
     }
 
 
+    
 }
 

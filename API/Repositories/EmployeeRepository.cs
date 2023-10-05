@@ -23,4 +23,19 @@ public class EmployeeRepository : AllRepositoryGeneric<Employee>, IEmployeeRepos
             .FirstOrDefault();
 
     }
+
+    public string GetByEmail(string email)
+    {
+        var findEmail = _context.Employees
+            .FirstOrDefault(a => a.Email == email);
+
+        if (findEmail != null)
+        {
+            return findEmail.Email;
+        }
+
+        return null; 
+    }
+
+    
 }

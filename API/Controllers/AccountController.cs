@@ -1,9 +1,11 @@
 ﻿using API.Contracts;
 using API.DTOs.Accounts;
+using API.DTOs.Employees;
 using API.Models;
 using API.Utilities.Handlers;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Principal;
 
 namespace API.Controllers;
 [ApiController]
@@ -12,11 +14,18 @@ namespace API.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly IAccountRepository _accountRepository;
+    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IEmailHandler _emailHandler;
+
+    //private Dictionary<string, (string otp, DateTime expiration)> otpStorage = new Dictionary<string, (string otp, DateTime expiration)>();
+
 
     //contructor dan dependency injection untuk menyimpan instance dari IAccountRepository
-    public AccountController(IAccountRepository accountRepository)
+    public AccountController(IAccountRepository accountRepository, IEmployeeRepository employeeRepository, IEmailHandler emailHandler)
     {
         _accountRepository = accountRepository;
+        _employeeRepository = employeeRepository;
+        _emailHandler = emailHandler;
     }
 
     [HttpGet] //menangani request get all data endpoint /Account
@@ -165,5 +174,184 @@ public class AccountController : ControllerBase
 
 
     }
+
+    [HttpPut("ForgotPassWord")]
+    public IActionResult ForgotPasword(string emailForgot)
+    {
+
+        var employee = _employeeRepository.GetAll();
+        var account = _accountRepository.GetByEmail(emailForgot); // get account berdasarkan email
+
+        if (!(employee.Any() && account != null))
+        {
+            // Respons dengan kode status HTTP 404 (Not Found) dengan pesan kesalahan yang dihasilkan.
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
+        }
+
+        
+        int otp = GenerateHandler.GenerateOtp();
+        account.Otp = otp;
+        account.IsUsed = false;
+        account.ExpiredTime = DateTime.Now.AddMinutes(5);
+        _accountRepository.Update(account);
+        var accAll = _accountRepository.GetAll();
+
+        _emailHandler.Send("Forgot Password", $"Your OTP is {account.Otp}", emailForgot);
+        var accountView = from emp in employee
+                          join acc in accAll on emp.Guid equals acc.Guid
+                          select new AccountForgotPaswordDto
+                          {
+                              Otp = acc.Otp,
+                              ExpireTime = acc.ExpiredTime
+                          };
+
+        return Ok(new ResponseOKHandler<IEnumerable<AccountForgotPaswordDto>>(accountView));
+    }
+
+
+
+    [HttpPut("ChangePassword")]
+    public IActionResult ChangePassword(AccountChangePasswordDto changePsswd)
+    {
+        // get account  berdasarkan alamat email
+        var account = _accountRepository.GetByEmail(changePsswd.Email);
+
+        if (account == null)
+        {
+            // Respons dengan kode status HTTP 404 (Not Found) jika akun tidak ditemukan.
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Account Not Found"
+            });
+        }
+
+        // Periksa apakah OTP yang dimasukkan oleh pengguna sesuai dengan yang ada dalam akun
+        if (changePsswd.Otp != account.Otp)
+        {
+            // Respons dengan pesan kesalahan jika OTP tidak cocok
+            return BadRequest(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "Invalid OTP"
+            });
+        }
+
+        // Periksa apakah OTP sudah digunakan sebelumnya
+        if (account.IsUsed)
+        {
+            // Respons dengan pesan kesalahan jika OTP sudah digunakan sebelumnya
+            return BadRequest(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "OTP has already been used"
+            });
+        }
+
+        // Periksa apakah OTP sudah kedaluwarsa
+        var currentTime = DateTime.UtcNow;
+        var expiredTime = account.ExpiredTime;
+
+        if (currentTime > expiredTime)
+        {
+            // Respons dengan pesan kesalahan jika OTP sudah kedaluwarsa
+            return BadRequest(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "OTP has expired"
+            });
+        }
+
+        // Periksa apakah NewPassword sama dengan ConfirmPassword
+        if (changePsswd.NewPassword != changePsswd.ConfirmPassword)
+        {
+            // Respons dengan pesan kesalahan jika NewPassword tidak cocok dengan ConfirmPassword
+            return BadRequest(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "NewPassword and ConfirmPassword do not match"
+            });
+        }
+
+        ////kurang update nya ke db
+        int otp = GenerateHandler.GenerateOtp();
+        account.Otp = otp;
+        account.IsUsed = true;
+        account.ExpiredTime = DateTime.Now.AddMinutes(5);
+        _accountRepository.Update(account);
+        return Ok(new ResponseOKHandler<string>("Password changed successfully"));
+    }
+
+    [HttpPost("Login")]
+    public IActionResult Login(LoginDto loginDto)
+    {
+        try
+        {
+            var account = _accountRepository.GetByEmail(loginDto.Email);
+
+            //bool hashedPassword = HashHandler.VerifyPassword(loginDto.Password, account.Password);
+            if (account == null)
+            {
+                // Respons dengan kode status HTTP 404 (Not Found) jika akun tidak ditemukan.
+                return NotFound(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Account Not Found"
+                });
+            }
+
+            // Periksa apakah kata sandi yang dihash cocok dengan kata sandi di database
+            if (HashHandler.VerifyPassword(loginDto.Password, account.Password))
+            {
+                // Respons dengan pesan kesalahan jika kata sandi salah
+                return BadRequest(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Account or Password is invalid"
+                });
+            }
+                return Ok(new ResponseOKHandler<string>("Login Berhasil"));
+            
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Status = HttpStatusCode.BadRequest.ToString(),
+                Message = "Account or Password is invalid",
+                Error = ex.Message.ToString()
+            }); ;
+        }
+        
+
+        // Jika verifikasi kata sandi berhasil, Anda memberikan respons sukses
+
+
+    }
+
+
+
 }
+
+
+
+
+
+
+
+
+
 
