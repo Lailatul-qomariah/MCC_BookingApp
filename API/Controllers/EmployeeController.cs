@@ -71,10 +71,12 @@ public class EmployeeController : ControllerBase
     [HttpGet("details")]
     public IActionResult GetDetails() 
     {
+        //get all data dari entity employee, education dan university
         var employees = _employeeRepository.GetAll();
         var education = _educationRepository.GetAll();
         var universities = _universityRepository.GetAll();
         
+        //cek apakah datanya ada
         if (!(employees.Any() && education.Any() && universities.Any()))
         {
             return NotFound(new ResponseErrorHandler
@@ -85,7 +87,7 @@ public class EmployeeController : ControllerBase
             });
 
         }
-
+        //join tabel agar datanya bisa diset dan direturn dalam format dto
         var employeeDetails = from emp in employees
                               join edu in education on emp.Guid equals edu.Guid
                               join univ in universities on edu.UniversityGuid equals univ.Guid

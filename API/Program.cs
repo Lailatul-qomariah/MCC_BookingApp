@@ -25,11 +25,11 @@ builder.Services.AddScoped<IGenericRepository<Role>, AllRepositoryGeneric<Role>>
 builder.Services.AddScoped<IGenericRepository<Room>, AllRepositoryGeneric<Room>>();
 builder.Services.AddScoped<IAllRepository<University>, AllRepositoryGeneric<University>>();*/
 
-//ad email service to the conatainer
+//add email service to the conatainer
 builder.Services.AddTransient<IEmailHandler, EmailHandler>(_ => new EmailHandler(
-    builder.Configuration["SmtpService:Host"],
-    int.Parse(builder.Configuration["SmtpService:Port"]),
-    builder.Configuration["SmtpService:FromEmailAddress"]));
+    builder.Configuration["SmtpService:Host"], //set alamat email sesuai yang di setting di appsettings.json
+    int.Parse(builder.Configuration["SmtpService:Port"]), //set alamat email sesuai yang di setting di port
+    builder.Configuration["SmtpService:FromEmailAddress"])); //set alamat email pengirim dari konfigurasi
 
 
 //add repositories to the container / NON GENERIC

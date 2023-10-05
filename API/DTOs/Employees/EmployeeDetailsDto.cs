@@ -2,6 +2,7 @@
 {
     public class EmployeeDetailsDto
     {
+        //properti view details yang akan jadi inputan user dan juga sebagai output 
         public Guid Guid {  get; set; }
         public string Nik { get; set; }
         public string FullName {  get; set; }

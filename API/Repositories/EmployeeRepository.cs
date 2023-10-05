@@ -16,26 +16,12 @@ public class EmployeeRepository : AllRepositoryGeneric<Employee>, IEmployeeRepos
         _context = context;
     }
 
-    public Employee GetLastNik()
+    public Employee GetLastNik() //method untuk find last nik
     {
         return _context.Employees
-            .OrderByDescending(e => e.Nik)
+            .OrderByDescending(e => e.Nik) //urutkan descending
             .FirstOrDefault();
 
     }
-
-    public string GetByEmail(string email)
-    {
-        var findEmail = _context.Employees
-            .FirstOrDefault(a => a.Email == email);
-
-        if (findEmail != null)
-        {
-            return findEmail.Email;
-        }
-
-        return null; 
-    }
-
     
 }

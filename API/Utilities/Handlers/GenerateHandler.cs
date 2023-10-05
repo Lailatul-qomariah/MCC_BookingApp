@@ -1,5 +1,4 @@
-﻿using API.Data;
-using API.Models;
+﻿using API.Models;
 
 namespace API.Utilities.Handlers;
 
@@ -25,8 +24,10 @@ public class GenerateHandler
 
     public static int GenerateOtp()
     {
+        // Membuat objek Random untuk menghasilkan angka acak.
+        //class Random bawaan dari .NET
         Random random = new Random();
-        int otp = random.Next(100000, 999999);
+        int otp = random.Next(100000, 999999);//random angka dari 100000 sampai 999999
         return otp;
     }
 }

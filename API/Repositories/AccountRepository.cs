@@ -11,33 +11,18 @@ public class AccountRepository : AllRepositoryGeneric<Account>, IAccountReposito
 //inheritance pada genericrepository dan interface repository
 {
     private readonly BookingManagementDBContext _context;
-    //injection dbcontext
-    public AccountRepository(BookingManagementDBContext context) : base(context) 
-    { 
+    public AccountRepository(BookingManagementDBContext context) : base(context)
+    {
+        //injection dbcontext
         _context = context;
     }
 
-    /* public Account GetByEmail(string email)
-     {
-         return _context.Accounts.FirstOrDefault(a => a.Email == email);
-     }*/
-
     public Account GetByEmail(string email)
-{
+    {
+        // Menggunakan LINQ untuk mencari data pertama di dalam tabel Accounts
+        // di mana alamat emailnya yang terkait cocok dengan alamat email yang diberikan.
         var account = _context.Accounts
-                      .Join(
-                          _context.Employees,
-                          account => account.Guid,
-                          employee => employee.Guid,
-                          (account, employee) => new
-                          {
-                              Account = account,
-                              Employee = employee
-                          }
-                      )
-                      .Where(joinResult => joinResult.Employee.Email == email)
-                      .Select(joinResult => joinResult.Account)
-                      .FirstOrDefault();
+                .FirstOrDefault(account => account.Employee.Email == email);
 
         return account;
     }
