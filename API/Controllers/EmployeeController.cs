@@ -2,13 +2,14 @@
 using API.DTOs.Employees;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-
+[Authorize]
 public class EmployeeController : ControllerBase
 {
     private readonly IEmployeeRepository _employeeRepository;

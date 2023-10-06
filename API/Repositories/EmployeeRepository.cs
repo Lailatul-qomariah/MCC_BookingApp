@@ -23,5 +23,14 @@ public class EmployeeRepository : AllRepositoryGeneric<Employee>, IEmployeeRepos
             .FirstOrDefault();
 
     }
-    
+    public Employee GetByEmail(string email)
+    {
+        // Menggunakan LINQ untuk mencari data pertama di dalam tabel employee
+        // di mana alamat emailnya yang terkait cocok dengan alamat email yang diberikan.
+        var employee = _context.Employees
+                .FirstOrDefault(emp => emp.Email == email);
+
+        return employee;
+    }
+
 }

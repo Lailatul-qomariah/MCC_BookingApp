@@ -3,13 +3,16 @@ using API.Data;
 using API.DTOs.Accounts;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 using System.Transactions;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 
 public class AccountController : ControllerBase
 {
@@ -18,19 +21,22 @@ public class AccountController : ControllerBase
     private readonly IEmailHandler _emailHandler;
     private readonly IEducationRepository _educationRepository;
     private readonly IUniversityRepository _universityRepository;
+    private readonly ITokensHandler _tokenHandler;
 
 
 
 
     //contructor dan dependency injection untuk menyimpan instance dari IAccountRepository
     public AccountController(IAccountRepository accountRepository, IEmployeeRepository employeeRepository,
-        IEmailHandler emailHandler, IEducationRepository educationRepository, IUniversityRepository universityRepository)
+        IEmailHandler emailHandler, IEducationRepository educationRepository, 
+        IUniversityRepository universityRepository, ITokensHandler tokenHandler)
     {
         _accountRepository = accountRepository;
         _employeeRepository = employeeRepository;
         _emailHandler = emailHandler;
         _educationRepository = educationRepository;
         _universityRepository = universityRepository;
+        _tokenHandler = tokenHandler;
     }
 
     [HttpGet] //menangani request get all data endpoint /Account
@@ -299,12 +305,14 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("Login")]
+    [AllowAnonymous]
     public IActionResult Login(LoginDto loginDto)
     {
         try
         {
+            var employee = _employeeRepository.GetByEmail(loginDto.Email);
             var account = _accountRepository.GetByEmail(loginDto.Email); //get email berdasarkan input
-            if (account == null)
+            if (account == null && employee == null)
             {
                 // Respons dengan kode status HTTP 404 (Not Found) jika akun tidak ditemukan.
                 return NotFound(new ResponseErrorHandler
@@ -327,7 +335,16 @@ public class AccountController : ControllerBase
                     Message = "Account or Password is invalid"
                 });
             }
-            return Ok(new ResponseOKHandler<string>("Login Berhasil"));
+
+            var claims = new List<Claim>();
+            claims.Add(new Claim("Email", employee.Email));
+            claims.Add(new Claim("FullName", string.Concat(employee.FirstName+" "+employee.LastName)));
+
+            var generateToken = _tokenHandler.Generate(claims);
+            var response = new ResponseOKHandler<object>("Login Berhasil", new { Token = generateToken });
+
+            return Ok(response);
+            //return Ok(new ResponseOKHandler<object>("Login Berhasil"), new {Token = generateToken });
         }
         catch (Exception ex)
         {
@@ -344,6 +361,7 @@ public class AccountController : ControllerBase
 
 
     [HttpPost("Register")]
+    [AllowAnonymous]
     public IActionResult Register(RegisterAccountDto registrationDto)
     {
         using (var transaction = new TransactionScope()) //mengelola transaction dg using (clear after used)

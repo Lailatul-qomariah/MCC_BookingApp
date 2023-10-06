@@ -21,7 +21,6 @@ public class GenerateHandler
         }
     }
 
-
     public static int GenerateOtp()
     {
         // Membuat objek Random untuk menghasilkan angka acak.

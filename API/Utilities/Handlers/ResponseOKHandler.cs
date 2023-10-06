@@ -8,6 +8,7 @@ public class ResponseOKHandler <TEntity>
     public string Status { get; set; }
     public string Message { get; set; }
     public TEntity? Data { get; set; }
+    public object Object { get; set; }
 
     // Ini adalah contructor yang digunakan untuk menangani kondisi operasi berhasil dan mereturn data.
     public ResponseOKHandler(TEntity? data)
@@ -23,6 +24,13 @@ public class ResponseOKHandler <TEntity>
     {
         Code = StatusCodes.Status200OK;
         Status = HttpStatusCode.OK.ToString();
+        Message = message;
+    }
+    public ResponseOKHandler(string message, object obj)
+    {
+        Code = StatusCodes.Status200OK;
+        Status = HttpStatusCode.OK.ToString();
+        Object = obj;
         Message = message;
     }
 }
