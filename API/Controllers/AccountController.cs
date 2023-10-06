@@ -380,6 +380,7 @@ public class AccountController : ControllerBase
 
                 Account toCreateAcc = registrationDto;
                 toCreateAcc.Guid = resultEmp.Guid; //set Guid Account dengan Guid yang ada pada employee
+                //hashing password
                 toCreateAcc.Password = HashHandler.HashPassword(registrationDto.Password);
                 _accountRepository.Create(toCreateAcc);
 
@@ -389,7 +390,8 @@ public class AccountController : ControllerBase
             }
             catch (Exception ex)
             {
-                //bertindak sebagai rollback juga
+                //bertindak sebagai rollback
+                transaction.Dispose();
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
                 {
                     Code = StatusCodes.Status500InternalServerError,
