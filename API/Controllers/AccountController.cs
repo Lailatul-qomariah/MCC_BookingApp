@@ -1,14 +1,10 @@
 ﻿using API.Contracts;
 using API.Data;
 using API.DTOs.Accounts;
-using API.DTOs.Employees;
 using API.Models;
-using API.Repositories;
 using API.Utilities.Handlers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System.Security.Principal;
 using System.Transactions;
 
 namespace API.Controllers;
@@ -27,7 +23,7 @@ public class AccountController : ControllerBase
 
 
     //contructor dan dependency injection untuk menyimpan instance dari IAccountRepository
-    public AccountController(IAccountRepository accountRepository, IEmployeeRepository employeeRepository, 
+    public AccountController(IAccountRepository accountRepository, IEmployeeRepository employeeRepository,
         IEmailHandler emailHandler, IEducationRepository educationRepository, IUniversityRepository universityRepository)
     {
         _accountRepository = accountRepository;
@@ -66,7 +62,13 @@ public class AccountController : ControllerBase
         // cek apakah data result kosong atau apakah data berdasarkan guid ditemukan
         if (result is null)
         {
-            return NotFound("Id Not Found"); //return Notfound jika data tidak ditemukan
+            //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
         }
         //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
         return Ok(new ResponseOKHandler<AccountDto>((AccountDto)result));
@@ -180,20 +182,18 @@ public class AccountController : ControllerBase
             });
         }
 
-
-
     }
 
     [HttpPut("ForgotPassWord{email}")]
     public IActionResult ForgotPasword(string emailForgot)
     {
 
-        var employee = _employeeRepository.GetAll();
-        var accAll = _accountRepository.GetAll();
+        var employee = _employeeRepository.GetAll();//get all Employee
         var account = _accountRepository.GetByEmail(emailForgot); // get account berdasarkan email
 
         if (!(employee.Any() && account != null))//cek apakah email dan account by id memiliki data 
         {
+            //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
             return NotFound(new ResponseErrorHandler
             {
                 Code = StatusCodes.Status404NotFound,
@@ -202,13 +202,13 @@ public class AccountController : ControllerBase
             });
         }
 
-        
         int otp = GenerateHandler.GenerateOtp(); //generate otp dengan angka random 
         account.Otp = otp; //set acoount dengan otp yg sudah di generate
         account.IsUsed = false; //set otp belum digunakan
         account.ExpiredTime = DateTime.Now.AddMinutes(5);
         _accountRepository.Update(account);
 
+        var accAll = _accountRepository.GetAll();//get all account
         //layanan mail service yang akan dikirim ketika forgot password
         _emailHandler.Send("Forgot Password", $"Your OTP is {account.Otp}", emailForgot);
         //join employee dan account untuk ditampilkan datanya 
@@ -220,6 +220,7 @@ public class AccountController : ControllerBase
                               ExpireTime = acc.ExpiredTime
                           };
 
+        // return HTTP OK dengan kode status 200 untuk sukses update dan return data dalam format DTO
         return Ok(new ResponseOKHandler<IEnumerable<AccountForgotPaswordDto>>(accountView));
     }
 
@@ -233,6 +234,7 @@ public class AccountController : ControllerBase
 
         if (account == null)
         {
+            //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
             return NotFound(new ResponseErrorHandler
             {
                 Code = StatusCodes.Status404NotFound,
@@ -244,7 +246,6 @@ public class AccountController : ControllerBase
         // cek apakah OTP yang diinput sesuai dengan yang ada dalam account
         if (changePsswd.Otp != account.Otp)
         {
-            // Respons dengan pesan kesalahan jika OTP tidak cocok
             return BadRequest(new ResponseErrorHandler
             {
                 Code = StatusCodes.Status400BadRequest,
@@ -263,7 +264,6 @@ public class AccountController : ControllerBase
                 Message = "OTP has already been used"
             });
         }
-
         var currentTime = DateTime.UtcNow; //get date time saat ini
         var expiredTime = account.ExpiredTime; //get date time dari expired time di Dto
 
@@ -304,8 +304,7 @@ public class AccountController : ControllerBase
         try
         {
             var account = _accountRepository.GetByEmail(loginDto.Email); //get email berdasarkan input
-
-            if (account == null) 
+            if (account == null)
             {
                 // Respons dengan kode status HTTP 404 (Not Found) jika akun tidak ditemukan.
                 return NotFound(new ResponseErrorHandler
@@ -317,7 +316,7 @@ public class AccountController : ControllerBase
             }
             //hashing password dari inputan user dan dicek apakah true atau false
             bool hashingPasswd = HashHandler.VerifyPassword(loginDto.Password, account.Password);
-            
+
             if (!hashingPasswd) //cek hasil hasing true or false
             {
                 // Respons dengan pesan kesalahan jika password salah
@@ -328,7 +327,6 @@ public class AccountController : ControllerBase
                     Message = "Account or Password is invalid"
                 });
             }
-
             return Ok(new ResponseOKHandler<string>("Login Berhasil"));
         }
         catch (Exception ex)
@@ -357,20 +355,20 @@ public class AccountController : ControllerBase
                 var resultEmp = _employeeRepository.Create(toCreateEmp); //create data account menggunakan format data DTO implisit
 
                 //cek apakah nama univ dan code nya sudah ada di DB
-                var univFindResult= _universityRepository.GetCodeName(registrationDto.UniversityCode, registrationDto.UniversityName);
+                var univFindResult = _universityRepository.GetCodeName(registrationDto.UniversityCode, registrationDto.UniversityName);
                 if (univFindResult is null)
                 {
                     //jika tidak ada maka membuat data baru
                     univFindResult = _universityRepository.Create(registrationDto);
-                }
+                } 
 
-                Education toCreateEdu = registrationDto; 
+                Education toCreateEdu = registrationDto;
                 toCreateEdu.Guid = resultEmp.Guid; //set Guid Education dengan Guid yang ada pada employee
                 toCreateEdu.UniversityGuid = univFindResult.Guid;
                 var resultedu = _educationRepository.Create(toCreateEdu);
 
                 //cek apakah password tidak sama dengan confirm password
-                if (registrationDto.Password != registrationDto.ConfirmPassword) 
+                if (registrationDto.Password != registrationDto.ConfirmPassword)
                 {
                     return BadRequest(new ResponseErrorHandler
                     {
@@ -391,13 +389,14 @@ public class AccountController : ControllerBase
             }
             catch (Exception ex)
             {
+                //bertindak sebagai rollback juga
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
                 {
                     Code = StatusCodes.Status500InternalServerError,
                     Status = HttpStatusCode.InternalServerError.ToString(),
                     Message = "Failed Registration Account",
                     Error = ex.Message
-                }); 
+                });
             }
         }
     }

@@ -24,9 +24,6 @@ public class EmployeeController : ControllerBase
         _universityRepository = universityRepository;
     }
 
-   
-
-
     [HttpGet] //menangani request get all data endpoint /Employee
     public IActionResult GetAll()
     {
