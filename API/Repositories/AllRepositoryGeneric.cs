@@ -8,7 +8,7 @@ public class AllRepositoryGeneric<T> : IGenericRepository<T> where
     T : class
 
 {
-    private readonly BookingManagementDBContext _context; //akses db context
+    protected readonly BookingManagementDBContext _context; //akses db context
 
     public AllRepositoryGeneric(BookingManagementDBContext context) //injection untuk instance db context
     {

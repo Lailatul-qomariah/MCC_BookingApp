@@ -2,13 +2,14 @@
 using API.DTOs.Bookings;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-
+[Authorize(Roles = "manager")]
 public class BookingController : ControllerBase
 {
     private readonly IBookingRepository _bookingRepository;

@@ -3,12 +3,14 @@ using API.DTOs.Employees;
 using API.DTOs.Roles;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
+[Authorize (Roles = "admin")]
 
 public class RoleController : ControllerBase
 {

@@ -3,6 +3,7 @@ using API.DTOs.Employees;
 using API.DTOs.Universities;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using static System.Net.WebRequestMethods;
@@ -10,7 +11,7 @@ using static System.Net.WebRequestMethods;
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-
+[Authorize(Roles = "user")]
 public class UniversityController : ControllerBase
 {
 

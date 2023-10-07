@@ -20,7 +20,7 @@ namespace API.Utilities.Handlers
             var tokenOptions = new JwtSecurityToken(issuer: _configuration["JWTService:Issuer"],
                 audience: _configuration["JWTService:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddSeconds(10),
+                expires: DateTime.Now.AddMinutes(10),
                 signingCredentials: sigingCredentials);
             var encodedToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return encodedToken;

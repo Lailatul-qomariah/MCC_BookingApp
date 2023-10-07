@@ -8,10 +8,8 @@ public class UniversityRepository : AllRepositoryGeneric<University>, IUniversit
 //inheritance pada genericrepository dan interface repository
 {
     //injection dbcontext
-    private readonly BookingManagementDBContext _context;
     public UniversityRepository(BookingManagementDBContext context) : base(context) 
     {
-     _context = context;
     }
 
     public University GetCodeName(string code, string name)

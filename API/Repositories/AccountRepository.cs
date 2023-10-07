@@ -10,11 +10,9 @@ namespace API.Repositories;
 public class AccountRepository : AllRepositoryGeneric<Account>, IAccountRepository
 //inheritance pada genericrepository dan interface repository
 {
-    private readonly BookingManagementDBContext _context;
     public AccountRepository(BookingManagementDBContext context) : base(context)
     {
         //injection dbcontext
-        _context = context;
     }
 
     public Account GetByEmail(string email)

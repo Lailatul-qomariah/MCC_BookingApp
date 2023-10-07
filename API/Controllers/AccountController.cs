@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Transactions;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles ="user, manager")]
 
 public class AccountController : ControllerBase
 {
@@ -20,16 +21,16 @@ public class AccountController : ControllerBase
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IEmailHandler _emailHandler;
     private readonly IEducationRepository _educationRepository;
+    private readonly IAccountRoleRepository _accountRoleRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly IUniversityRepository _universityRepository;
     private readonly ITokensHandler _tokenHandler;
-
-
-
 
     //contructor dan dependency injection untuk menyimpan instance dari IAccountRepository
     public AccountController(IAccountRepository accountRepository, IEmployeeRepository employeeRepository,
         IEmailHandler emailHandler, IEducationRepository educationRepository, 
-        IUniversityRepository universityRepository, ITokensHandler tokenHandler)
+        IUniversityRepository universityRepository, ITokensHandler tokenHandler, 
+        IRoleRepository roleRepository, IAccountRoleRepository accountRoleRepository)
     {
         _accountRepository = accountRepository;
         _employeeRepository = employeeRepository;
@@ -37,6 +38,8 @@ public class AccountController : ControllerBase
         _educationRepository = educationRepository;
         _universityRepository = universityRepository;
         _tokenHandler = tokenHandler;
+        _roleRepository = roleRepository;   
+        _accountRoleRepository = accountRoleRepository;
     }
 
     [HttpGet] //menangani request get all data endpoint /Account
@@ -340,11 +343,18 @@ public class AccountController : ControllerBase
             claims.Add(new Claim("Email", employee.Email));
             claims.Add(new Claim("FullName", string.Concat(employee.FirstName+" "+employee.LastName)));
 
-            var generateToken = _tokenHandler.Generate(claims);
-            var response = new ResponseOKHandler<object>("Login Berhasil", new { Token = generateToken });
+            var getRoleName = from ar in _accountRoleRepository.GetAll()
+                              join r in _roleRepository.GetAll() on ar.RoleGuid equals r.Guid
+                              where ar.AccountGuid == account.Guid
+                              select r.Name;
 
-            return Ok(response);
-            //return Ok(new ResponseOKHandler<object>("Login Berhasil"), new {Token = generateToken });
+            foreach(var roleName in getRoleName)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, roleName));
+            }
+
+            var generateToken = _tokenHandler.Generate(claims);
+            return Ok(new ResponseOKHandler<object>("Login Berhasil", new{Token = generateToken}));
         }
         catch (Exception ex)
         {
@@ -359,7 +369,6 @@ public class AccountController : ControllerBase
     }
 
 
-
     [HttpPost("Register")]
     [AllowAnonymous]
     public IActionResult Register(RegisterAccountDto registrationDto)
@@ -370,7 +379,7 @@ public class AccountController : ControllerBase
             {
                 Employee toCreateEmp = registrationDto; //convert data DTO dari inputan user menjadi objek Employee
                 toCreateEmp.Nik = GenerateHandler.GenerateNik(_employeeRepository.GetLastNik()); //set nik dg generate nik
-                var resultEmp = _employeeRepository.Create(toCreateEmp); //create data account menggunakan format data DTO implisit
+                 _employeeRepository.Create(toCreateEmp); //create data account menggunakan format data DTO implisit
 
                 //cek apakah nama univ dan code nya sudah ada di DB
                 var univFindResult = _universityRepository.GetCodeName(registrationDto.UniversityCode, registrationDto.UniversityName);
@@ -381,9 +390,9 @@ public class AccountController : ControllerBase
                 } 
 
                 Education toCreateEdu = registrationDto;
-                toCreateEdu.Guid = resultEmp.Guid; //set Guid Education dengan Guid yang ada pada employee
+                toCreateEdu.Guid = toCreateEmp.Guid; //set Guid Education dengan Guid yang ada pada employee
                 toCreateEdu.UniversityGuid = univFindResult.Guid;
-                var resultedu = _educationRepository.Create(toCreateEdu);
+                _educationRepository.Create(toCreateEdu);
 
                 //cek apakah password tidak sama dengan confirm password
                 if (registrationDto.Password != registrationDto.ConfirmPassword)
@@ -397,11 +406,16 @@ public class AccountController : ControllerBase
                 }
 
                 Account toCreateAcc = registrationDto;
-                toCreateAcc.Guid = resultEmp.Guid; //set Guid Account dengan Guid yang ada pada employee
+                toCreateAcc.Guid = toCreateEmp.Guid; //set Guid Account dengan Guid yang ada pada employee
                 //hashing password
                 toCreateAcc.Password = HashHandler.HashPassword(registrationDto.Password);
                 _accountRepository.Create(toCreateAcc);
 
+                var accountRole = _accountRoleRepository.Create(new AccountRole
+                {
+                    AccountGuid = toCreateAcc.Guid,
+                    RoleGuid = _roleRepository.GetDefaultRoleGuid() ?? throw new Exception("Default Role Not Found")
+                });
 
                 transaction.Complete(); // Commit transaksi 
                 return Ok(new ResponseOKHandler<string>("Registration successfully"));

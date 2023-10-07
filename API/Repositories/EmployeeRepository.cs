@@ -10,10 +10,8 @@ public class EmployeeRepository : AllRepositoryGeneric<Employee>, IEmployeeRepos
 {
 
     //injection dbcontect
-    private readonly BookingManagementDBContext _context;
     public EmployeeRepository(BookingManagementDBContext context) : base(context)
     {
-        _context = context;
     }
 
     public Employee GetLastNik() //method untuk find last nik

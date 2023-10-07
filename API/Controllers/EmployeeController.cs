@@ -9,7 +9,7 @@ using System.Net;
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = "user, manager")]
 public class EmployeeController : ControllerBase
 {
     private readonly IEmployeeRepository _employeeRepository;
@@ -67,6 +67,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet("details")]
+    
     public IActionResult GetDetails() 
     {
         //get all data dari entity employee, education dan university
