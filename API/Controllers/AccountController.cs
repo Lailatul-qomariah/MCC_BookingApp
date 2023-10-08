@@ -342,20 +342,22 @@ public class AccountController : ControllerBase
                 });
             }
 
+            // Membuat list  claims yang akan digunakan dalam pembuatan token JWT
             var claims = new List<Claim>();
-            claims.Add(new Claim("Email", employee.Email));
-            claims.Add(new Claim("FullName", string.Concat(employee.FirstName+" "+employee.LastName)));
+            claims.Add(new Claim("Email", employee.Email)); // Menambahkan claim Email
+            claims.Add(new Claim("FullName", string.Concat(employee.FirstName+" "+employee.LastName))); // Menambahkan claim FullName
 
+            // Mengambil name roles dari repositori dan menambahkannya sebagai claim Role
             var getRoleName = from ar in _accountRoleRepository.GetAll()
                               join r in _roleRepository.GetAll() on ar.RoleGuid equals r.Guid
                               where ar.AccountGuid == account.Guid
                               select r.Name;
-
             foreach (var roleName in getRoleName)
             {
                 claims.Add(new Claim(ClaimTypes.Role, roleName));
             }
 
+            // Menggunakan TokensHandler untuk menghasilkan token JWT dengan claims yang telah dibuat
             var generateToken = _tokenHandler.Generate(claims);
             return Ok(new ResponseOKHandler<object>("Login Berhasil", new{Token = generateToken}));
         }
@@ -414,9 +416,11 @@ public class AccountController : ControllerBase
                 toCreateAcc.Password = HashHandler.HashPassword(registrationDto.Password);
                 _accountRepository.Create(toCreateAcc);
 
+                //membuat account role secara otomatis ketika user register dan role diset sebagai user
                 var accountRole = _accountRoleRepository.Create(new AccountRole
                 {
                     AccountGuid = toCreateAcc.Guid,
+                    //mencari role "user" dalam db jika ditemukan akan disimpan datanya dalam account role, jika tidak masuk exception
                     RoleGuid = _roleRepository.GetDefaultRoleGuid() ?? throw new Exception("Default Role Not Found")
                 });
 

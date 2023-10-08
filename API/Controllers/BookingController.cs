@@ -27,6 +27,7 @@ public class BookingController : ControllerBase
     
     //soal no 4
     [HttpGet("BookingDuration")]
+    [Authorize(Roles = "manager")]
     public IActionResult GetBookingLength()
     {
         try
@@ -100,6 +101,7 @@ public class BookingController : ControllerBase
 
     //jawaban soal no 2
     [HttpGet("details")]
+    [Authorize(Roles = "manager")]
     public IActionResult GetAllDetails()
     {
         var booking = _bookingRepository.GetAll(); //get data dari tabel booking 

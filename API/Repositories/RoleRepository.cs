@@ -15,6 +15,7 @@ public class RoleRepository : AllRepositoryGeneric<Role>, IRoleRepository
 
     public Guid? GetDefaultRoleGuid()
     {
+        //find role name "user"
         return _context.Set<Role>().FirstOrDefault(r => r.Name == "user")?.Guid;
     }
 

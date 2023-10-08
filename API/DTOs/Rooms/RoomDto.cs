@@ -11,7 +11,7 @@ namespace API.DTOs.Rooms
         public int Floor { get; set; }
         public int Capacity { get; set; }
         // Operator eksplisit untuk convert objek Room ke RoomDto
-        //digunakan atau dipanggil pada method GetAll, GetByGuid dan Create
+        //digunakan atau dipanggil pada method GetAll, GetByGuid dan Create dan GetVailableRoom
         public static explicit operator RoomDto(Room room)
         {
             // Inisiasi objek RoomDto dengan data dari objek Room
