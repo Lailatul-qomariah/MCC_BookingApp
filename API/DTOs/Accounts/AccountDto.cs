@@ -36,7 +36,6 @@ public class AccountDto
         {
             Guid = accountDto.Guid,
             Password = accountDto.Password,
-            Otp = accountDto.Otp,
             IsUsed = accountDto.IsUsed,
             ExpiredTime = accountDto.ExpiredTime,
             ModifiedDate = DateTime.Now

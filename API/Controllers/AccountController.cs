@@ -89,6 +89,7 @@ public class AccountController : ControllerBase
         try
         {
             Account toCreate = accountDto;
+            toCreate.Otp= GenerateHandler.GenerateOtp();
             toCreate.Password = HashHandler.HashPassword(accountDto.Password);
             // create data account menggunakan format data DTO implisit
             var result = _accountRepository.Create(toCreate);
@@ -132,6 +133,7 @@ public class AccountController : ControllerBase
             //convert data DTO dari inputan user menjadi objek Account
             Account toUpdate = accountDto;
             //menyimpan createdate yg lama 
+            toUpdate.Otp = GenerateHandler.GenerateOtp();
             toUpdate.CreatedDate = entity.CreatedDate;
             toUpdate.Password = HashHandler.HashPassword(accountDto.Password);
 
