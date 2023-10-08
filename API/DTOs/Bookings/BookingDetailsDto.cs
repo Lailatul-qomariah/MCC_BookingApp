@@ -1,6 +1,7 @@
 ﻿namespace API.DTOs.Bookings
 {
     public class BookingDetailsDto
+    //representasi DTO untuk data yang akan ditampilkan pada user
     {
         public Guid Guid { get; set; }
         public string BookedNIK { get; set; }
