@@ -110,14 +110,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Add CORS
-builder.Services.AddCors(options =>
+//Add CORS, bisa diterapkan pada projek yang sudah dideploy atau jika local harus menggunakan sln yg berbeda
+builder.Services.AddCors(options => 
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin();
-        policy.AllowAnyHeader();
-        policy.WithMethods("GET", "POST", "DELETE", "PUT");
+        policy.AllowAnyOrigin(); // allow all request dari semua asal (domain) yang berbeda
+        policy.AllowAnyHeader();  // allow penggunaan header apa pun dalam request
+        policy.WithMethods("GET", "POST", "DELETE", "PUT"); // allow penggunaan metode HTTP GET, POST, DELETE, dan PUT
     });
 }
     );

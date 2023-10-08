@@ -24,7 +24,8 @@ public class BookingController : ControllerBase
         _roomRepository = roomRepository;
         _employeeRepository = employeeRepository;
     }
-
+    
+    //soal no 4
     [HttpGet("BookingDuration")]
     public IActionResult GetBookingLength()
     {
@@ -37,16 +38,14 @@ public class BookingController : ControllerBase
             // inisiasi day off yang tidak masuk perhitungan yaitu Sabtu dan Minggu
             var offDay = new List<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
 
-            // Membuat list objek BookingLengthDto yang akan menampung result perhitungan
+            // membuat list objek BookingLengthDto yang akan menampung result perhitungan
             var roomBookingLengths = new List<BookingLengthDto>();
-
             foreach (var r in room) //perulangan untuk setiap room
             {
-                // Mengambil semua data booking untuk masing-masing ruangan
+                // get semua data booking untuk masing-masing ruangan
                 var roomBookings = booking
                     .Where(b => b.RoomGuid == r.Guid);
-
-                if (roomBookings.Any())
+                if (roomBookings.Any()) //cek apakah roombooking memiliki data
                 {
                     //inisiasi variabel utuk perhitungan
                     var bookingDurationInHours = 0;
@@ -68,13 +67,10 @@ public class BookingController : ControllerBase
                             startDate = startDate.AddHours(1); // Menambahkan 1 jam ke waktu mulai
                         }
                     }
-                    //Menghitung total durasi booking dalam jumlah hari
-                    var durationBookingInDays= bookingDurationInHours / 24;
+                    var durationBookingInDays= bookingDurationInHours / 24;  //menghitung total durasi booking dalam jumlah hari
+                    var remainingHours = bookingDurationInHours % 24;  //menghitung sisa jam booking setelah menghitung dalam hari
 
-                    //Menghitung sisa jam booking setelah menghitung dalam hari
-                    var remainingHours = bookingDurationInHours % 24;
-
-                    // Menambahkan hasil perhitungan ke list roomBookingLengths dalam bentuk objek
+                    // menambahkan hasil perhitungan ke list roomBookingLengths dalam bentuk objek
                     roomBookingLengths.Add(new BookingLengthDto
                     {
                         RoomGuid = r.Guid,
@@ -84,7 +80,7 @@ public class BookingController : ControllerBase
                 }
             }
 
-            // Mengembalikan daftar hasil perhitungan dalam respons OK
+            // return daftar hasil perhitungan dalam respons OK
             return Ok(new ResponseOKHandler<IEnumerable<BookingLengthDto>>(roomBookingLengths));
 
         }
@@ -102,7 +98,7 @@ public class BookingController : ControllerBase
     }
 
 
-
+    //jawaban soal no 2
     [HttpGet("details")]
     public IActionResult GetAllDetails()
     {
@@ -138,7 +134,6 @@ public class BookingController : ControllerBase
                              };
         return Ok(new ResponseOKHandler<IEnumerable<BookingDetailsDto>>(bookingDetails));
     }
-
 
     [HttpGet("detail{guid}")]
     [Authorize(Roles = "user")]
