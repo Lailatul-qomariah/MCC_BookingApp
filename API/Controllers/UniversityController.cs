@@ -11,7 +11,7 @@ using static System.Net.WebRequestMethods;
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "user")]
+[Authorize(Roles = "admin")]
 public class UniversityController : ControllerBase
 {
 
@@ -24,6 +24,7 @@ public class UniversityController : ControllerBase
     }
 
     [HttpGet] //menangani request get all data endpoint /University
+    [Authorize(Roles = "manager")]
     public IActionResult GetAll()
     {
         // Mendapatkan semua data universitas dari _universityRepository.
@@ -48,6 +49,7 @@ public class UniversityController : ControllerBase
     }
 
     [HttpGet("{guid}")] //menangani request get data by guid endpoint /university/{guid}
+    [Authorize(Roles = "user, manager")]
     public IActionResult GetByGuid(Guid guid)
     {
         //get data berdasarkan guid yang diinputkan user
@@ -70,6 +72,7 @@ public class UniversityController : ControllerBase
 
     [HttpPost] //menangani request create data ke endpoint /university
     //parameter berupa objek menggunakan format DTO agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "user, manager")]
     public IActionResult Create(CreateUniversityDto universityDto)
     {
         try
@@ -96,6 +99,7 @@ public class UniversityController : ControllerBase
 
     [HttpPut] //menangani request update ke endpoint /university
     //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "user, manager")]
     public IActionResult Update(UniversityDto universityDto)
     {
         try
@@ -135,8 +139,6 @@ public class UniversityController : ControllerBase
         }
 
     }
-
-
 
     [HttpDelete("{guid}")] //menangani request delete ke endpoint /University
     public IActionResult Delete(Guid guid)

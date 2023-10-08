@@ -12,7 +12,7 @@ public class AccountRepository : AllRepositoryGeneric<Account>, IAccountReposito
 {
     public AccountRepository(BookingManagementDBContext context) : base(context)
     {
-        //injection dbcontext
+       
     }
 
     public Account GetByEmail(string email)

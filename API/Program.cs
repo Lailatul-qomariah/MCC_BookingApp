@@ -18,16 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BookingManagementDBContext>(option  => option.UseSqlServer(connectionString));
 
-//add repositories to the container / GENERIC
-/*builder.Services.AddScoped<IUniversityRepository, UniversityRepository>();
-builder.Services.AddScoped<IGenericRepository<Account>, AllRepositoryGeneric<Account>>();
-builder.Services.AddScoped<IGenericRepository<AccountRole>, AllRepositoryGeneric<AccountRole>>();
-builder.Services.AddScoped<IGenericRepository<Booking>, AllRepositoryGeneric<Booking>>();
-builder.Services.AddScoped<IAllRepository<Education>, AllRepositoryGeneric<Education>>();
-builder.Services.AddScoped<IGenericRepository<Employee>, AllRepositoryGeneric<Employee>>();
-builder.Services.AddScoped<IGenericRepository<Role>, AllRepositoryGeneric<Role>>();
-builder.Services.AddScoped<IGenericRepository<Room>, AllRepositoryGeneric<Room>>();
-builder.Services.AddScoped<IAllRepository<University>, AllRepositoryGeneric<University>>();*/
 
 //add email service to the conatainer
 builder.Services.AddTransient<IEmailHandler, EmailHandler>(_ => new EmailHandler(

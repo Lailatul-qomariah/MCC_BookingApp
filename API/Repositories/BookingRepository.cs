@@ -10,4 +10,5 @@ public class BookingRepository : AllRepositoryGeneric<Booking>, IBookingReposito
     //injection dbcontect
     public BookingRepository(BookingManagementDBContext context) : base(context) { }
 
+
 }

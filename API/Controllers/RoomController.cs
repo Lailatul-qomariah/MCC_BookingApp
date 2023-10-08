@@ -2,25 +2,130 @@
 using API.DTOs.Employees;
 using API.DTOs.Rooms;
 using API.Models;
+using API.Repositories;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Principal;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "admin")]
 
 public class RoomController : ControllerBase
 {
     private readonly IRoomRepository _roomRepository;
+    private readonly IBookingRepository _bookingRepository;
+    private readonly IEmployeeRepository _employeeRepository;
 
     //contructor dan dependency injection untuk menyimpan instance dari IRoomRepository
-    public RoomController(IRoomRepository roomRepository)
+    public RoomController(IRoomRepository roomRepository, IBookingRepository bookingRepository,
+        IEmployeeRepository employeeRepository)
     {
         _roomRepository = roomRepository;
+        _bookingRepository = bookingRepository;
+        _employeeRepository = employeeRepository;
+    }
+
+
+    [HttpGet("RoomAvailable")]
+    [Authorize(Roles = "user, manager")]
+    public IActionResult GetAvailableRooms()
+    {
+        // get semua data dari tabel Room
+        var room = _roomRepository.GetAll();
+
+        // get semua data dari tabel Booking
+        var booking = _bookingRepository.GetAll();
+
+        // ce apakah tidak ada data room dan booking
+        if (!(room.Any() && booking.Any()))
+        {
+            // Jika tidak ada data room dan booking, maka return respons HTTP 404 Not Found
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
+        }
+
+        // get date hari ini
+        DateTime today = DateTime.Now.Date;
+
+        // get daftar room yang sedang digunakan hari ini
+        var usedRoom = booking
+            .Where(b => b.StartDate.Date <= today && today <= b.EndDate.Date && b.Status == Utilities.Enums.StatusLevels.OnGoing)
+            .Select(b => b.RoomGuid).Distinct().ToList();
+
+        // get seluruh daftar room yang tidak digunakan maupun yang belum pernah dibooking
+        var availableRooms = room.Where(r => !usedRoom.Contains(r.Guid)).Select(r => new RoomDto
+        {
+            Guid = r.Guid,
+            Name = r.Name,
+            Floor = r.Floor,
+            Capacity = r.Capacity
+        }).ToList(); //convert objek kedalam bentuk list
+
+        // cek apakah ada ruangan yang tersedia
+        if (!availableRooms.Any())
+        {
+            // Jika tidak ada ruangan yang tersedia, return respons HTTP 404 Not Found
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Tidak ada ruangan yang tersedia hari ini"
+            });
+        }
+
+        // return room yang tersedia dalam respons OK
+        return Ok(new ResponseOKHandler<IEnumerable<RoomDto>>(availableRooms));
+    }
+
+
+    [HttpGet("RoomInUse")]
+    [Authorize(Roles = "manager")]
+    public IActionResult GetInUse()
+    {
+        var room = _roomRepository.GetAll(); // get all data room
+        var booking = _bookingRepository.GetAll(); //get all data booking
+        var employee = _employeeRepository.GetAll(); //get all data employee
+
+        if (!room.Any() && booking.Any() && employee.Any())//cek apakah data ditemukan
+        {
+            //respons dengan kode status HTTP 404(Not Found) dengan pesan kesalahan yang dihasilkan.
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
+        }
+        DateTime today = DateTime.Now.Date; //get tanggal hari ini 
+        var roomInUse = from r in room
+                        join b in booking on r.Guid equals b.RoomGuid
+                        join e in employee on b.EmployeeGuid equals e.Guid
+                        where b.Status == Utilities.Enums.StatusLevels.OnGoing && //where status roomnya ongoing / sedang dipakai
+                        b.StartDate.Date <= today && today <= b.EndDate.Date //where tanggalnya untuk penggunaan room hari ini 
+                        //instance untuk mengisi properti dalam InUseRoomDto berdasarkan objek room dan booking 
+                        select new InUseRoomDto
+                        {
+                            BookingGuid = b.Guid,
+                            RoomName = r.Name,
+                            Status = b.Status.ToString(),
+                            Floor = r.Floor,
+                            BookedBy = string.Concat(e.FirstName, " ", e.LastName)
+                        };
+
+        return Ok(new ResponseOKHandler<IEnumerable<InUseRoomDto>>(roomInUse));
+
     }
 
     [HttpGet] //menangani request get all data endpoint /Room
+    [Authorize(Roles = "manager")]
     public IActionResult GetAll()
     {
         // Mendapatkan semua data Room dari _roomRepository.
@@ -44,6 +149,7 @@ public class RoomController : ControllerBase
     }
 
     [HttpGet("{guid}")] //menangani request get data by guid endpoint /Room/{guid}
+    [Authorize(Roles = "manager")]
     public IActionResult GetByGuid(Guid guid)
     {
         //get data berdasarkan guid yang diinputkan user
@@ -67,6 +173,7 @@ public class RoomController : ControllerBase
 
     [HttpPost] //menangani request create data ke endpoint /Room
     //parameter berupa objek menggunakan format DTO agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "manager")]
     public IActionResult Create(CreateRoomDto roomDto)
     {
         try
@@ -93,6 +200,7 @@ public class RoomController : ControllerBase
 
     [HttpPut] //menangani request update ke endpoint /Room
     //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "manager")]
     public IActionResult Update(RoomDto roomDto)
     {
         try
@@ -173,5 +281,6 @@ public class RoomController : ControllerBase
 
 
     }
+
 }
 

@@ -9,15 +9,172 @@ using System.Net;
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "manager")]
+[Authorize(Roles = "manager, admin")]
 public class BookingController : ControllerBase
 {
     private readonly IBookingRepository _bookingRepository;
+    private readonly IRoomRepository _roomRepository;
+    private readonly IEmployeeRepository _employeeRepository;
 
     //contructor dan dependency injection untuk menyimpan instance dari IBookingRepository
-    public BookingController(IBookingRepository bookingRepository)
+    public BookingController(IBookingRepository bookingRepository, IRoomRepository roomRepository,
+        IEmployeeRepository employeeRepository)
     {
         _bookingRepository = bookingRepository;
+        _roomRepository = roomRepository;
+        _employeeRepository = employeeRepository;
+    }
+
+    [HttpGet("BookingDuration")]
+    public IActionResult GetBookingLength()
+    {
+        try
+        {
+            // get all data dari tabel Booking dan Room
+            var booking = _bookingRepository.GetAll();
+            var room = _roomRepository.GetAll();
+
+            // inisiasi day off yang tidak masuk perhitungan yaitu Sabtu dan Minggu
+            var offDay = new List<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
+
+            // Membuat list objek BookingLengthDto yang akan menampung result perhitungan
+            var roomBookingLengths = new List<BookingLengthDto>();
+
+            foreach (var r in room) //perulangan untuk setiap room
+            {
+                // Mengambil semua data booking untuk masing-masing ruangan
+                var roomBookings = booking
+                    .Where(b => b.RoomGuid == r.Guid);
+
+                if (roomBookings.Any())
+                {
+                    //inisiasi variabel utuk perhitungan
+                    var bookingDurationInHours = 0;
+
+                    // looping untuk setiap data booking pada room
+                    foreach (var b in roomBookings)
+                    {
+                        var startDate = b.StartDate;
+                        var endDate = b.EndDate;
+
+                        //looping untuk menghitung jumlah jam kerja antara start date dan end date booking
+                        while (startDate <= endDate)
+                        {
+                            //cek apakah tanggal saat ini bukan day off 
+                            if (!offDay.Contains(startDate.DayOfWeek))
+                            {
+                                bookingDurationInHours += 1; // Menambahkan 1 jam ke total durasi booking
+                            }
+                            startDate = startDate.AddHours(1); // Menambahkan 1 jam ke waktu mulai
+                        }
+                    }
+                    //Menghitung total durasi booking dalam jumlah hari
+                    var durationBookingInDays= bookingDurationInHours / 24;
+
+                    //Menghitung sisa jam booking setelah menghitung dalam hari
+                    var remainingHours = bookingDurationInHours % 24;
+
+                    // Menambahkan hasil perhitungan ke list roomBookingLengths dalam bentuk objek
+                    roomBookingLengths.Add(new BookingLengthDto
+                    {
+                        RoomGuid = r.Guid,
+                        RoomName = r.Name,
+                        BookingLength = $"{durationBookingInDays} Hari {remainingHours} Jam"
+                    });
+                }
+            }
+
+            // Mengembalikan daftar hasil perhitungan dalam respons OK
+            return Ok(new ResponseOKHandler<IEnumerable<BookingLengthDto>>(roomBookingLengths));
+
+        }
+        catch (ExceptionHandler ex)
+        {
+            // Jika terjadi exception saat mengambil data, akan mengembalikan respon handler 500 dengan pesan exception.
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to calculate booking lengths",
+                Error = ex.Message
+            });
+        }
+    }
+
+
+
+    [HttpGet("details")]
+    public IActionResult GetAllDetails()
+    {
+        var booking = _bookingRepository.GetAll(); //get data dari tabel booking 
+        var room = _roomRepository.GetAll(); //get data dari tabel room 
+        var employee = _employeeRepository.GetAll(); //get data dari tabel employee 
+        // cek apakah ada data booking, data room, dan data employee tersedia
+        if (!(booking.Any() && room.Any() && employee.Any()))
+        {
+            //jika data tidak ditemukan maka akan masuk ke handler error 404 notfound
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
+        }
+        //join 3 objek untuk mengambil data sesuai kebutuhan berdasarkan format BookingDetailsDto
+        var bookingDetails = from r in room
+                             join b in booking on r.Guid equals b.RoomGuid
+                             join e in employee on b.EmployeeGuid equals e.Guid
+                             //instance untuk mengisi properti dalam BookingDetailsDto berdasarkan objek employee, room dan booking 
+                             select new BookingDetailsDto
+                             {
+                                 Guid = b.Guid, // set properti GUID di BookingDetailsDto dengan GUID dari booking
+                                 BookedNIK = e.Nik, //set properti NIK di BookingDetailsDto dengan NIK dari employee
+                                 BookedBy = string.Concat(e.FirstName, " ", e.LastName), //concat menggabungkan firt dan last name
+                                 RoomName = r.Name, //set properti RoomName di BookingDetailsDto dengan Name dari room
+                                 StartDate = b.StartDate,
+                                 EndDate = b.EndDate,
+                                 Status = b.Status.ToString(),//convert Status dalam bentuk enum ke string contoh  0 menjadi "Ongoing"
+                                 Remarks = b.Remarks
+                             };
+        return Ok(new ResponseOKHandler<IEnumerable<BookingDetailsDto>>(bookingDetails));
+    }
+
+
+    [HttpGet("detail{guid}")]
+    [Authorize(Roles = "user")]
+    public IActionResult GetDetailsByGuid(Guid guid)
+    {
+        // get data booking berdasarkan guid yang diinput
+        var booking = _bookingRepository.GetByGuid(guid);
+
+        if (booking == null) //cek apakah data booking kosong
+        {
+            //jika data tidak ditemukan maka akan masuk ke handler error 404 notfound
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
+        }
+        // get data employee dan room berdasarkan guid yang ada di booking
+        var employee = _employeeRepository.GetByGuid(booking.EmployeeGuid);
+        var room = _roomRepository.GetByGuid(booking.RoomGuid);
+
+        // Membuat instance BookingDetailsDto berdasarkan data booking, employee, dan room
+        var bookingDetails = new BookingDetailsDto
+        {
+            Guid = booking.Guid, // set properti GUID di BookingDetailsDto dengan GUID dari booking
+            BookedNIK = employee.Nik, //set properti NIK di BookingDetailsDto dengan NIK dari employee
+            BookedBy = string.Concat(employee.FirstName, " ", employee.LastName),
+            RoomName = room.Name, //set properti RoomName di BookingDetailsDto dengan Name dari room
+            StartDate = booking.StartDate,
+            EndDate = booking.EndDate,
+            Status = booking.Status.ToString(), //convert Status dalam bentuk enum ke string contoh  0 menjadi "Ongoing"
+            Remarks = booking.Remarks
+        };
+
+        return Ok(new ResponseOKHandler<BookingDetailsDto>(bookingDetails));
     }
 
     [HttpGet] //menangani request get all data endpoint /Booking
@@ -67,6 +224,7 @@ public class BookingController : ControllerBase
 
     [HttpPost] //menangani request create data ke endpoint /Booking
     //parameter berupa objek menggunakan format DTO agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "user")]
     public IActionResult Create(CreateBookingDto bookingDto)
     {
         try
@@ -93,6 +251,7 @@ public class BookingController : ControllerBase
 
     [HttpPut] //menangani request update ke endpoint /Booking
     //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "user")]
     public IActionResult Update(BookingDto bookingDto)
     {
         try
@@ -131,13 +290,10 @@ public class BookingController : ControllerBase
                 Error = ex.Message
             });
         }
-       
+
     }
 
-
-
     [HttpDelete("{guid}")] //menangani request delete ke endpoint /Booking
-
     public IActionResult Delete(Guid guid)
     {
         try
@@ -158,7 +314,7 @@ public class BookingController : ControllerBase
             }
 
             //delete Booking dari repository
-           _bookingRepository.Delete(entity);
+            _bookingRepository.Delete(entity);
 
             // return HTTP OK dengan kode status 200 dan return "data updated" untuk sukses update.
             return Ok(new ResponseOKHandler<string>("Data Deleted"));

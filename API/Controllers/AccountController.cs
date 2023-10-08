@@ -7,13 +7,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Transactions;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles ="user, manager")]
+[Authorize(Roles ="admin")] 
 
 public class AccountController : ControllerBase
 {
@@ -194,6 +193,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPut("ForgotPassWord{email}")]
+    [Authorize(Roles = "user, manager")]
     public IActionResult ForgotPasword(string emailForgot)
     {
 
@@ -236,6 +236,7 @@ public class AccountController : ControllerBase
 
 
     [HttpPut("ChangePassword")]
+    [Authorize(Roles = "user, manager")]
     public IActionResult ChangePassword(AccountChangePasswordDto changePsswd)
     {
         // get account  berdasarkan alamat email
@@ -335,7 +336,7 @@ public class AccountController : ControllerBase
                 {
                     Code = StatusCodes.Status400BadRequest,
                     Status = HttpStatusCode.BadRequest.ToString(),
-                    Message = "Account or Password is invalid"
+                    Message = "Password is invalid"
                 });
             }
 
@@ -348,7 +349,7 @@ public class AccountController : ControllerBase
                               where ar.AccountGuid == account.Guid
                               select r.Name;
 
-            foreach(var roleName in getRoleName)
+            foreach (var roleName in getRoleName)
             {
                 claims.Add(new Claim(ClaimTypes.Role, roleName));
             }

@@ -3,12 +3,14 @@ using API.DTOs.Educations;
 using API.DTOs.Employees;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "admin")]
 
 public class EducationController : ControllerBase
 {
@@ -45,6 +47,7 @@ public class EducationController : ControllerBase
     }
 
     [HttpGet("{guid}")] //menangani request get data by guid endpoint /Education/{guid}
+    [Authorize(Roles = "user, manager")]
     public IActionResult GetByGuid(Guid guid)
     {
         //get data berdasarkan guid yang diinputkan user
@@ -67,6 +70,7 @@ public class EducationController : ControllerBase
 
     [HttpPost] //menangani request create data ke endpoint /Education
     //parameter berupa objek menggunakan format DTO agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "user, manager")]
     public IActionResult Create(CreateEducationDto educationDto)
     {
         try
@@ -93,7 +97,8 @@ public class EducationController : ControllerBase
     }
 
     [HttpPut] //menangani request update ke endpoint /Education
-    //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
+              //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
+    [Authorize(Roles = "user, manager")]
     public IActionResult Update(EducationDto educationDto)
     {
         try

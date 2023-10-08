@@ -1,6 +1,6 @@
 ﻿namespace API.Utilities.Enums
 {
-    public enum StatusLevels //menentukan gender level di modelnya
+    public enum StatusLevels //menentukan status level di modelnya
     {
         Requested, //default numeriknya dimulai dari 0 sama seperti index
         Approved, //1
