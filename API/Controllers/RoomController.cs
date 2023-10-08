@@ -1,5 +1,4 @@
 ﻿using API.Contracts;
-using API.DTOs.Employees;
 using API.DTOs.Rooms;
 using API.Models;
 using API.Repositories;
@@ -7,7 +6,6 @@ using API.Utilities.Handlers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Security.Principal;
 
 namespace API.Controllers;
 [ApiController]
@@ -29,7 +27,7 @@ public class RoomController : ControllerBase
         _employeeRepository = employeeRepository;
     }
 
-
+    //soal no 3
     [HttpGet("RoomAvailable")]
     [Authorize(Roles = "user, manager")]
     public IActionResult GetAvailableRooms()
@@ -51,7 +49,6 @@ public class RoomController : ControllerBase
                 Message = "Data Not Found"
             });
         }
-
         // get date hari ini
         DateTime today = DateTime.Now.Date;
 
@@ -85,7 +82,7 @@ public class RoomController : ControllerBase
         return Ok(new ResponseOKHandler<IEnumerable<RoomDto>>(availableRooms));
     }
 
-
+    //soal no 1
     [HttpGet("RoomInUse")]
     [Authorize(Roles = "manager")]
     public IActionResult GetInUse()
@@ -119,9 +116,8 @@ public class RoomController : ControllerBase
                             Floor = r.Floor,
                             BookedBy = string.Concat(e.FirstName, " ", e.LastName)
                         };
-
+        //return HTTP OK dan data dalam format DTO dengan kode status 200 untuk success
         return Ok(new ResponseOKHandler<IEnumerable<InUseRoomDto>>(roomInUse));
-
     }
 
     [HttpGet] //menangani request get all data endpoint /Room
