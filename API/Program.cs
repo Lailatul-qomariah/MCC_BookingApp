@@ -117,7 +117,7 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin(); // allow all request dari semua asal (domain) yang berbeda
         policy.AllowAnyHeader();  // allow penggunaan header apa pun dalam request
-        policy.WithMethods("GET", "POST", "DELETE", "PUT"); // allow penggunaan metode HTTP GET, POST, DELETE, dan PUT
+        policy.AllowAnyMethod(); // allow penggunaan metode HTTP GET, POST, DELETE, dan PUT
     });
 }
     );

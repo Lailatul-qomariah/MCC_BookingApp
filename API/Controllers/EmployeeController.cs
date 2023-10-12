@@ -9,7 +9,7 @@ using System.Net;
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "admin")]
+
 public class EmployeeController : ControllerBase
 {
     private readonly IEmployeeRepository _employeeRepository;
@@ -48,7 +48,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet("{guid}")] //menangani request get data by guid endpoint /Employee/{guid}
-    [Authorize(Roles = "user, manager")]
+    
     public IActionResult GetByGuid(Guid guid)
     {
         //get data berdasarkan guid yang diinputkan user
@@ -68,7 +68,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet("details")]
-    [Authorize(Roles = "manager")]
+   
     public IActionResult GetDetails() 
     {
         //get all data dari entity employee, education dan university
@@ -111,7 +111,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "manager")]
+  
     public IActionResult Create(CreateEmployeeDto createEmpDto)
     {
         try
@@ -142,7 +142,7 @@ public class EmployeeController : ControllerBase
 
     [HttpPut] //menangani request update ke endpoint /Employee
     //parameter berupa objek menggunakan format DTO explicit agar crete data disesuaikan dengan format DTO
-    [Authorize(Roles = "user, manager")]
+   
     public IActionResult Update(EmployeeDto employeeDto)
     {
         try
