@@ -1,0 +1,36 @@
+﻿@model API.DTOs.Accounts.LoginDto
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_LayoutLogin";
+}
+
+<div class="text-center">
+    <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+</div>
+
+<div class="form-group">
+    <form action="/Auth/Login" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password" class="control-label"></label>
+            <input asp-for="Password" class="form-control" type="password"/>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Login" class="btn btn-primary"/>
+        </div>
+    </form>
+</div>
+@section scripts {
+    <script src="~/js/Auth.js" asp-append-version="true"></script>
+}
+
+
+
+

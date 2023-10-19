@@ -32,4 +32,9 @@ public class ResponseOKHandler <TEntity>
         Message = message;
         Data = data;
     }
+
+    public ResponseOKHandler()
+    {
+        
+    }
 }

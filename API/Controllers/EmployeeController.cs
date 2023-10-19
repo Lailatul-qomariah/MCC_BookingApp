@@ -9,6 +9,8 @@ using System.Net;
 namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
+/*[Authorize (Roles ="admin, user, manager")]*/
+
 
 public class EmployeeController : ControllerBase
 {
@@ -111,7 +113,6 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
-  
     public IActionResult Create(CreateEmployeeDto createEmpDto)
     {
         try

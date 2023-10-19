@@ -13,7 +13,8 @@ public class CreateEmployeeValidator : AbstractValidator<CreateEmployeeDto>
 
         RuleFor(e => e.BirthDate) //validator untuk firstname
            .NotEmpty() //tidak boleh kosong atau 0
-           .GreaterThanOrEqualTo(DateTime.Now.AddYears(-18)); // max batas usia adalah 18 tahun
+           .Must(birthDate => (DateTime.Today - birthDate).TotalDays / 365 >= 18)
+           .WithMessage("Minimun 18 years old");
 
         RuleFor(e => e.Gender) //validator untuk properti gender 
            .NotNull() //tidak boleh kosong atau nol
