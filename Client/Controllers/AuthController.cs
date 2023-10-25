@@ -28,9 +28,9 @@ public class AuthController : Controller // Inheritance ke class controller bawa
         {
 
             HttpContext.Session.SetString("JWToken", result.Data.Token);
-            return RedirectToAction("List", "Employee");
+            return Json(result);
         }
-        return RedirectToAction("Login", "Auth");
+        return Json(result);
     }
 
     [HttpGet("/Logout/")]
